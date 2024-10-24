@@ -9,7 +9,7 @@ import (
 
 func checkRequiredFields() error {
 	var mErr error
-	if viper.GetString(config.ViperKeeneticApi) == "" {
+	if viper.GetString(config.ViperKeeneticUrl) == "" {
 		mErr = multierr.Append(mErr, errors.New("please specify a keenetic api flag/field/variable"))
 	}
 	if viper.GetString(config.ViperKeeneticLogin) == "" {

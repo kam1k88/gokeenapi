@@ -1,6 +1,6 @@
 keenetic:
-  # can be replaced by GOKEENAPI_API variable or --api flag
-  api: https://example.keenetic.pro/rci
+  # can be replaced by GOKEENAPI_URL variable or --url flag
+  url: http://192.168.1.1
   # can be replaced by GOKEENAPI_LOGIN variable or --login flag
   login: super-login
   # can be replaced by GOKEENAPI_PASSWORD variable or --password flag

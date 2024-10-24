@@ -1,7 +1,7 @@
 package config
 
 const (
-	ViperKeeneticApi         = "keenetic.api"
+	ViperKeeneticUrl         = "keenetic.url"
 	ViperKeeneticLogin       = "keenetic.login"
 	ViperKeeneticPassword    = "keenetic.password"
 	ViperKeeneticInterfaceId = "keenetic.interface.id"
