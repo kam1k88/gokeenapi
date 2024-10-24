@@ -26,13 +26,11 @@ func Auth() error {
 		var mErr error
 		if response != nil {
 			if response.StatusCode() == http.StatusUnauthorized {
-				wwwAuth := response.Header().Get("WWW-Authenticate")
 				realm := response.Header().Get("x-ndm-realm")
 				token := response.Header().Get("x-ndm-challenge")
 				setCookieStr := response.Header().Get("set-cookie")
 				setCookieStrSplitted := strings.Split(setCookieStr, ";")
 				cookie = setCookieStrSplitted[0]
-				fmt.Println(wwwAuth, realm, token)
 				secondRequest := GetApiClient().R()
 				//secondRequest.Header.Set("Cookie", cookie)
 
