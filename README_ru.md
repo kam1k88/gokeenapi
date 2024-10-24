@@ -26,6 +26,56 @@
 
 ---
 
+#### Примеры конфигурации
+
+* [Yaml файл](https://github.com/Noksa/gokeenapi/blob/main/config_example.yaml)
+```yaml
+keenetic:
+  # IP адрес Keenetic
+  url: http://192.168.1.1
+  # Логин юзера который может взаимодействовать с REST API - обычно это админ
+  login: super-login
+  # Пароль от юзера
+  # Предпочтительнее хранить пароль через переменные окружения или передавать через флаг командной строки при отключенной истории оболочки
+  password: super-password
+
+# Бат-файлы из которых следует загрузить маршруты в роутер
+# Данные файлы должны быть размещены на дисках
+bat-file:
+  - /path/to/batfile.bat
+
+# Бат-файлы из ссылок из которых следует загрузить маршруты в роутер
+# Ссылка должна вести на файл в формате BAT
+bat-url:
+  - https://iplist.opencck.org/?format=bat&data=cidr4&site=instagram.com
+  - https://iplist.opencck.org/?format=bat&data=cidr4&site=youtube.com
+  - https://iplist.opencck.org/?format=bat&data=cidr4&site=facebook.com
+```
+
+* Переменные окружения - могут быть экспортированы в оболочку любым удобным способом (.bashrc/.zshrc и так далее)
+```shell
+export GOKEENAPI_URL="http://192.168.1.1"
+export GOKEENAPI_LOGIN="admin"
+export GOKEENAPI_PASSWORD="password"
+./gokeenapi ...
+```
+
+* Файл с переменными окружения (`.gokeenapienv`) - должен лежать рядом с запускаемым файлом `gokeenapi`.
+
+    Содержимое файла:
+```shell
+GOKEENAPI_LOGIN=admin
+GOKEENAPI_URL=http://192.168.1.1
+GOKEENAPI_PASSWORD=password
+```
+
+* Через флаги командной строки
+```shell
+./gokeenapi --url http://192.168.1.1 --login admin --password password
+```
+
+---
+
 #### Примеры использования
 
 Самый простой способ начать пользоваться `gokeenapi` через docker контейнеры
