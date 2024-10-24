@@ -3,6 +3,7 @@ package keeneticapi
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/go-resty/resty/v2"
 	"github.com/noksa/gokeenapi/internal/config"
 	"github.com/noksa/gokeenapi/internal/keenlog"
@@ -13,6 +14,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 )
 
 const (
@@ -43,7 +45,7 @@ func (*keeneticRoute) GetAllUserRoutesRciIpRoute(keeneticInterface string) ([]mo
 			realRoutes = append(realRoutes, route)
 		}
 	}
-	keenlog.Infof("Found %v static routes for %v interface", len(realRoutes), viper.GetString(config.ViperKeeneticInterfaceId))
+	keenlog.InfoSubStepf("Found %v static routes for %v interface", color.MagentaString("%v", len(realRoutes)), viper.GetString(config.ViperKeeneticInterfaceId))
 	return realRoutes, err
 }
 
@@ -69,7 +71,7 @@ func (*keeneticRoute) DeleteRoutes(routes []models.RciIpRoute) error {
 		parse.Parse = fmt.Sprintf("no ip route %v %v", ip, keeneticInterface)
 		parseSlice = append(parseSlice, parse)
 	}
-	return keenspinner.WrapWithSpinner(fmt.Sprintf("Deleting %v static routes with %v interface", len(parseSlice), keeneticInterface), func() error {
+	return keenspinner.WrapWithSpinner(fmt.Sprintf("Deleting %v static routes with %v interface", color.MagentaString("%v", len(parseSlice)), keeneticInterface), func() error {
 		_, err := ExecutePostParse(parseSlice...)
 		return err
 	})
@@ -101,7 +103,7 @@ func (*keeneticRoute) AddRoutesFromBatFile(batFile string) error {
 		parseSlice = append(parseSlice, models.ParseRequest{Parse: fmt.Sprintf("ip route %v %v %v auto", ip, mask, viper.GetString(config.ViperKeeneticInterfaceId))})
 	}
 	var parseResponse []models.ParseResponse
-	mErr = multierr.Append(mErr, keenspinner.WrapWithSpinner(fmt.Sprintf("Adding/Updating %v static routes from %v file to %v interface", len(parseSlice), batFile, viper.GetString(config.ViperKeeneticInterfaceId)), func() error {
+	mErr = multierr.Append(mErr, keenspinner.WrapWithSpinner(fmt.Sprintf("Adding %v static routes from %v file to %v interface", color.MagentaString("%v", len(parseSlice)), color.CyanString(batFile), color.BlueString(viper.GetString(config.ViperKeeneticInterfaceId))), func() error {
 		var executeErr error
 		parseResponse, executeErr = ExecutePostParse(parseSlice...)
 		return executeErr
@@ -112,8 +114,15 @@ func (*keeneticRoute) AddRoutesFromBatFile(batFile string) error {
 
 func (*keeneticRoute) AddRoutesFromBatUrl(url string) error {
 	matcher := regexp.MustCompile(regex)
-	req := resty.New().R()
-	response, err := req.Get(url)
+	rClient := resty.New()
+	rClient.SetDisableWarn(true)
+	rClient.SetTimeout(time.Second * 5)
+	var err error
+	var response *resty.Response
+	err = keenspinner.WrapWithSpinner(fmt.Sprintf("Fetching %v url", color.CyanString(url)), func() error {
+		response, err = rClient.R().Get(url)
+		return err
+	})
 	if err != nil {
 		return err
 	}
@@ -137,7 +146,7 @@ func (*keeneticRoute) AddRoutesFromBatUrl(url string) error {
 		parseSlice = append(parseSlice, models.ParseRequest{Parse: fmt.Sprintf("ip route %v %v %v auto", ip, mask, viper.GetString(config.ViperKeeneticInterfaceId))})
 	}
 	var parseResponse []models.ParseResponse
-	mErr = multierr.Append(mErr, keenspinner.WrapWithSpinner(fmt.Sprintf("Adding/Updating %v static routes from %v url to %v interface", len(parseSlice), url, viper.GetString(config.ViperKeeneticInterfaceId)), func() error {
+	mErr = multierr.Append(mErr, keenspinner.WrapWithSpinner(fmt.Sprintf("Adding %v static routes to %v interface", color.MagentaString("%v", len(parseSlice)), color.BlueString(viper.GetString(config.ViperKeeneticInterfaceId))), func() error {
 		var executeErr error
 		parseResponse, executeErr = ExecutePostParse(parseSlice...)
 		return executeErr

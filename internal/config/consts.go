@@ -1,9 +1,12 @@
 package config
 
 const (
-	ViperKeeneticApi         = "keenetic_api"
-	ViperKeeneticLogin       = "keenetic_login"
-	ViperKeeneticPassword    = "keenetic_password"
-	ViperKeeneticInterfaceId = "keenetic_interface_id"
+	ViperKeeneticApi         = "keenetic.api"
+	ViperKeeneticLogin       = "keenetic.login"
+	ViperKeeneticPassword    = "keenetic.password"
+	ViperKeeneticInterfaceId = "keenetic.interface.id"
+	ViperKeeneticConfig      = "config"
 	ViperDebug               = "debug"
+	ViperBatFiles            = "bat-file"
+	ViperBatUrls             = "bat-url"
 )

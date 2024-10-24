@@ -9,6 +9,7 @@ import (
 	"github.com/noksa/gokeenapi/pkg/models"
 	"github.com/spf13/viper"
 	"go.uber.org/multierr"
+	"net/http"
 )
 
 var restyClient *resty.Client
@@ -20,6 +21,9 @@ func ExecutePostParse(parse ...models.ParseRequest) ([]models.ParseResponse, err
 	var parseResponse []models.ParseResponse
 	var mErr error
 	if response != nil {
+		if response.StatusCode() != http.StatusOK {
+			return parseResponse, fmt.Errorf("wrong status code in response from api: %s", response.Status())
+		}
 		decodeErr := json.Unmarshal(response.Body(), &parseResponse)
 		mErr = multierr.Append(mErr, decodeErr)
 		for _, myParse := range parseResponse {
@@ -50,6 +54,7 @@ func GetApiClient() *resty.Client {
 		return restyClient
 	}
 	restyClient = resty.New()
+	restyClient.SetDisableWarn(true)
 	restyClient.SetBasicAuth(viper.GetString(config.ViperKeeneticLogin), viper.GetString(config.ViperKeeneticPassword))
 	restyClient.SetBaseURL(viper.GetString(config.ViperKeeneticApi))
 	return restyClient

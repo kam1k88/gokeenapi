@@ -1,0 +1,17 @@
+keenetic:
+  # can be replaced by GOKEENAPI_API variable or --api flag
+  api: https://example.keenetic.pro/rci
+  # can be replaced by GOKEENAPI_LOGIN variable or --login flag
+  login: super-login
+  # can be replaced by GOKEENAPI_PASSWORD variable or --password flag
+  password: super-password
+
+# Can be replaced by --bat-file flag in add-routes command multiple times
+#bat-file:
+#  - /path/to/batfile.bat
+
+# Can be replaced by --bat-url flag in add-routes command multiple times
+bat-url:
+  - https://iplist.opencck.org/?format=bat&data=cidr4&site=instagram.com
+  - https://iplist.opencck.org/?format=bat&data=cidr4&site=youtube.com
+  - https://iplist.opencck.org/?format=bat&data=cidr4&site=facebook.com
