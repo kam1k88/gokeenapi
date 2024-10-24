@@ -3,6 +3,7 @@ package keeneticapi
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/go-resty/resty/v2"
 	"github.com/noksa/gokeenapi/internal/config"
 	"github.com/noksa/gokeenapi/pkg/models"
@@ -21,6 +22,13 @@ func ExecutePostParse(parse ...models.ParseRequest) ([]models.ParseResponse, err
 	if response != nil {
 		decodeErr := json.Unmarshal(response.Body(), &parseResponse)
 		mErr = multierr.Append(mErr, decodeErr)
+		for _, myParse := range parseResponse {
+			for _, status := range myParse.Parse.Status {
+				if status.Status == "error" {
+					mErr = multierr.Append(mErr, fmt.Errorf("%s - %s - %s - %s", status.Status, status.Code, status.Ident, status.Message))
+				}
+			}
+		}
 	}
 	mErr = multierr.Append(mErr, err)
 	return parseResponse, mErr

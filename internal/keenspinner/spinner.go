@@ -11,16 +11,16 @@ func WrapWithSpinner(spinnerText string, f func() error) error {
 	startTime := time.Now()
 	s.Start()
 	s.PostUpdate = func(s *spinner.Spinner) {
-		s.Prefix = fmt.Sprintf("%v ... %s	", spinnerText, getPrettyFormatedDuration(time.Since(startTime).Round(time.Millisecond)))
+		s.Prefix = fmt.Sprintf("⌛    %v ... %s	", spinnerText, getPrettyFormatedDuration(time.Since(startTime).Round(time.Millisecond)))
 	}
 	defer s.Stop()
-	s.Prefix = fmt.Sprintf("%v ...", spinnerText)
+	s.Prefix = fmt.Sprintf("⌛    %v ...", spinnerText)
 	err := f()
 	s.Prefix = spinnerText
 	if err != nil {
-		s.FinalMSG = fmt.Sprintf("⛔ %v failed after %v\n", spinnerText, getPrettyFormatedDuration(time.Since(startTime).Round(time.Millisecond)))
+		s.FinalMSG = fmt.Sprintf("⛔   %v failed after %v\n", spinnerText, getPrettyFormatedDuration(time.Since(startTime).Round(time.Millisecond)))
 	} else {
-		s.FinalMSG = fmt.Sprintf("✅ %v completed after %v\n", spinnerText, getPrettyFormatedDuration(time.Since(startTime).Round(time.Millisecond)))
+		s.FinalMSG = fmt.Sprintf("✅   %v completed after %v\n", spinnerText, getPrettyFormatedDuration(time.Since(startTime).Round(time.Millisecond)))
 	}
 	return err
 }

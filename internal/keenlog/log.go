@@ -12,11 +12,13 @@ func Info(msg string) {
 }
 
 func Infof(msg string, args ...any) {
-	fmt.Printf(msg, args...)
+	s := fmt.Sprintf(msg, args...)
+	fmt.Printf("%v\n", s)
 }
 
-func Panicf(msg string, args ...any) {
-	panic(fmt.Sprintf(msg, args...))
+func InfoSubStepf(msg string, args ...any) {
+	s := fmt.Sprintf(msg, args...)
+	fmt.Printf("      ▪ %v\n", s)
 }
 
 func Debug(msg string) {
@@ -32,10 +34,9 @@ func PrintParseResponse(parseResponse []models.ParseResponse) {
 	if len(parseResponse) == 0 {
 		return
 	}
-	Info("Result:")
 	for _, parse := range parseResponse {
 		for _, status := range parse.Parse.Status {
-			Infof("  ▪ %v\n", status.Message)
+			InfoSubStepf(status.Message)
 		}
 	}
 }

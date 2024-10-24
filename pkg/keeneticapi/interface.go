@@ -13,7 +13,7 @@ type keeneticInterface struct {
 
 var Interface keeneticInterface
 
-func (*keeneticInterface) RciShowInterfaces(withType string) (map[string]models.RciShowInterface, error) {
+func (*keeneticInterface) GetInterfacesViaRciShowInterfaces(interfaceTypes ...string) (map[string]models.RciShowInterface, error) {
 	var interfaces map[string]models.RciShowInterface
 	err := keenspinner.WrapWithSpinner("Fetching interfaces", func() error {
 		body, err := ExecuteGetSubPath("/show/interface")
@@ -25,20 +25,26 @@ func (*keeneticInterface) RciShowInterfaces(withType string) (map[string]models.
 	if err != nil {
 		return interfaces, err
 	}
-	for k, interfaceDetails := range interfaces {
-		if withType != "" && strings.ToLower(interfaceDetails.Type) != strings.ToLower(withType) {
-			continue
-		}
-		keenlog.Infof("Interface '%v':\n", k)
-		keenlog.Infof("  * Id: %v\n", interfaceDetails.Id)
-		keenlog.Infof("  * Type: %v\n", interfaceDetails.Type)
-		if interfaceDetails.Description != "" {
-			keenlog.Infof("  * Description: %v\n", interfaceDetails.Description)
-		}
-		if interfaceDetails.Address != "" {
-			keenlog.Infof("  * Address: %v\n", interfaceDetails.Address)
-		}
-		keenlog.Infof("\n")
+	var interfaceTypesLower []string
+	for _, v := range interfaceTypes {
+		v := v
+		interfaceTypesLower = append(interfaceTypesLower, strings.ToLower(v))
 	}
 	return interfaces, nil
+}
+
+func (*keeneticInterface) PrintInfoAboutInterfaces(interfaces map[string]models.RciShowInterface) {
+	for k, interfaceDetails := range interfaces {
+		keenlog.Infof("Interface '%v':", k)
+		keenlog.InfoSubStepf("Id: %v", interfaceDetails.Id)
+		keenlog.InfoSubStepf("Type: %v", interfaceDetails.Type)
+		if interfaceDetails.Description != "" {
+			keenlog.InfoSubStepf("Description: %v", interfaceDetails.Description)
+		}
+		if interfaceDetails.Address != "" {
+			keenlog.InfoSubStepf("Address: %v", interfaceDetails.Address)
+		}
+		keenlog.Infof("")
+	}
+
 }

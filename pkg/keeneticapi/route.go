@@ -3,15 +3,20 @@ package keeneticapi
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-resty/resty/v2"
 	"github.com/noksa/gokeenapi/internal/config"
 	"github.com/noksa/gokeenapi/internal/keenlog"
 	"github.com/noksa/gokeenapi/internal/keenspinner"
 	"github.com/noksa/gokeenapi/pkg/models"
 	"github.com/spf13/viper"
+	"go.uber.org/multierr"
 	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
+)
+
+const (
+	regex = `(?i)route ADD (\d+.\d+.\d+.\d+) MASK (\d+.\d+.\d+.\d+)`
 )
 
 type keeneticRoute struct {
@@ -38,7 +43,7 @@ func (*keeneticRoute) GetAllUserRoutesRciIpRoute(keeneticInterface string) ([]mo
 			realRoutes = append(realRoutes, route)
 		}
 	}
-	keenlog.Infof("Got %v static routes", len(realRoutes))
+	keenlog.Infof("Found %v static routes for %v interface", len(realRoutes), viper.GetString(config.ViperKeeneticInterfaceId))
 	return realRoutes, err
 }
 
@@ -48,7 +53,7 @@ func (*keeneticRoute) DeleteRoutes(routes []models.RciIpRoute) error {
 		return nil
 	}
 	var parseSlice []models.ParseRequest
-	keeneticInterface := viper.GetString(config.ViperKeeneticInterface)
+	keeneticInterface := viper.GetString(config.ViperKeeneticInterfaceId)
 	for _, route := range routes {
 		if route.Interface != keeneticInterface {
 			continue
@@ -71,16 +76,13 @@ func (*keeneticRoute) DeleteRoutes(routes []models.RciIpRoute) error {
 }
 
 func (*keeneticRoute) AddRoutesFromBatFile(batFile string) error {
-	absBatFile, err := filepath.Abs(batFile)
-	if err != nil {
-		return err
-	}
-	matcher := regexp.MustCompile(`route ADD (\d+.\d+.\d+.\d+) MASK (\d+.\d+.\d+.\d+)`)
-	b, err := os.ReadFile(absBatFile)
+	matcher := regexp.MustCompile(regex)
+	b, err := os.ReadFile(batFile)
 	if err != nil {
 		return err
 	}
 	str := string(b)
+	var mErr error
 	splitted := strings.Split(str, "\n")
 	var parseSlice []models.ParseRequest
 	for _, line := range splitted {
@@ -89,18 +91,57 @@ func (*keeneticRoute) AddRoutesFromBatFile(batFile string) error {
 		}
 		sl := matcher.FindStringSubmatch(line)
 		if len(sl) != 3 {
+			keenlog.Infof("Skipping line with invalid format: '%v'", line)
+			keenlog.InfoSubStepf("It doesn't satisfy regexp: '%v'", regex)
+			mErr = multierr.Append(mErr, fmt.Errorf("line has invalid format: '%v'", line))
 			continue
 		}
 		ip := sl[1]
 		mask := sl[2]
-		parseSlice = append(parseSlice, models.ParseRequest{Parse: fmt.Sprintf("ip route %v %v %v auto", ip, mask, viper.GetString(config.ViperKeeneticInterface))})
+		parseSlice = append(parseSlice, models.ParseRequest{Parse: fmt.Sprintf("ip route %v %v %v auto", ip, mask, viper.GetString(config.ViperKeeneticInterfaceId))})
 	}
 	var parseResponse []models.ParseResponse
-	err = keenspinner.WrapWithSpinner(fmt.Sprintf("Adding/Updating %v static routes to %v interface", len(parseSlice), viper.GetString(config.ViperKeeneticInterface)), func() error {
+	mErr = multierr.Append(mErr, keenspinner.WrapWithSpinner(fmt.Sprintf("Adding/Updating %v static routes from %v file to %v interface", len(parseSlice), batFile, viper.GetString(config.ViperKeeneticInterfaceId)), func() error {
 		var executeErr error
 		parseResponse, executeErr = ExecutePostParse(parseSlice...)
 		return executeErr
-	})
+	}))
 	keenlog.PrintParseResponse(parseResponse)
-	return err
+	return mErr
+}
+
+func (*keeneticRoute) AddRoutesFromBatUrl(url string) error {
+	matcher := regexp.MustCompile(regex)
+	req := resty.New().R()
+	response, err := req.Get(url)
+	if err != nil {
+		return err
+	}
+	str := string(response.Body())
+	var mErr error
+	splitted := strings.Split(str, "\n")
+	var parseSlice []models.ParseRequest
+	for _, line := range splitted {
+		if line == "" {
+			continue
+		}
+		sl := matcher.FindStringSubmatch(line)
+		if len(sl) != 3 {
+			keenlog.Infof("Skipping line with invalid format: '%v'", line)
+			keenlog.InfoSubStepf("It doesn't satisfy regexp: '%v'", regex)
+			mErr = multierr.Append(mErr, fmt.Errorf("line has invalid format: '%v'", line))
+			continue
+		}
+		ip := sl[1]
+		mask := sl[2]
+		parseSlice = append(parseSlice, models.ParseRequest{Parse: fmt.Sprintf("ip route %v %v %v auto", ip, mask, viper.GetString(config.ViperKeeneticInterfaceId))})
+	}
+	var parseResponse []models.ParseResponse
+	mErr = multierr.Append(mErr, keenspinner.WrapWithSpinner(fmt.Sprintf("Adding/Updating %v static routes from %v url to %v interface", len(parseSlice), url, viper.GetString(config.ViperKeeneticInterfaceId)), func() error {
+		var executeErr error
+		parseResponse, executeErr = ExecutePostParse(parseSlice...)
+		return executeErr
+	}))
+	keenlog.PrintParseResponse(parseResponse)
+	return mErr
 }

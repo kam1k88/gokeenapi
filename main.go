@@ -2,9 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/noksa/gokeenapi/cmd"
-	"log"
+	"os"
 )
 
 func main() {
@@ -12,6 +11,6 @@ func main() {
 	ctx := context.Background()
 	err := rootCmd.ExecuteContext(ctx)
 	if err != nil {
-		log.Fatal(fmt.Sprintf("failed to execute command: %v", err))
+		os.Exit(100)
 	}
 }
