@@ -1,5 +1,7 @@
 ## Utility for adding/removing static routes in Keenetic routers via REST API
 
+###### [Russian doc (Документация на русском)](https://github.com/Noksa/gokeenapi/blob/main/README_ru.md)
+
 ---
 
 #### Limitations | Requirements
