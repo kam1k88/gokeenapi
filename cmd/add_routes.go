@@ -19,7 +19,7 @@ func newAddRoutesCmd() *cobra.Command {
 	cmd.Flags().String("interface-id", "", "Keenetic interface ID to update routes on")
 	cmd.Flags().StringSlice("bat-file", []string{}, "Path to a bat file to add routes from. Can be specified multiple times")
 	cmd.Flags().StringSlice("bat-url", []string{}, "URL to a bat file to add routes from. Can be specified multiple times")
-	_ = cmd.MarkFlagRequired("interface")
+	_ = cmd.MarkFlagRequired("interface-id")
 
 	cmd.PreRun = func(cmd *cobra.Command, args []string) {
 		_ = viper.BindPFlag(config.ViperKeeneticInterfaceId, cmd.Flags().Lookup("interface-id"))
