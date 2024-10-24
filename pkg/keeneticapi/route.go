@@ -29,7 +29,7 @@ var Route keeneticRoute
 func (*keeneticRoute) GetAllUserRoutesRciIpRoute(keeneticInterface string) ([]models.RciIpRoute, error) {
 	var routes []models.RciIpRoute
 	err := keenspinner.WrapWithSpinner("Fetching static routes", func() error {
-		body, err := ExecuteGetSubPath("/ip/route")
+		body, err := ExecuteGetSubPath("/rci/ip/route")
 		if err != nil {
 			return err
 		}

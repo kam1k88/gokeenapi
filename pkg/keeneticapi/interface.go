@@ -17,7 +17,7 @@ var Interface keeneticInterface
 func (*keeneticInterface) GetInterfacesViaRciShowInterfaces(interfaceTypes ...string) (map[string]models.RciShowInterface, error) {
 	var interfaces map[string]models.RciShowInterface
 	err := keenspinner.WrapWithSpinner("Fetching interfaces", func() error {
-		body, err := ExecuteGetSubPath("/show/interface")
+		body, err := ExecuteGetSubPath("/rci/show/interface")
 		if err != nil {
 			return err
 		}

@@ -53,6 +53,9 @@ func Auth() error {
 				if err != nil {
 					return err
 				}
+				if response.StatusCode() == http.StatusUnauthorized {
+					return errors.New("can't authorize in keenetic. Verify your login and password")
+				}
 			}
 		}
 		mErr = multierr.Append(mErr, err)
