@@ -38,6 +38,10 @@ keenetic:
   # Пароль от юзера
   # Предпочтительнее хранить пароль через переменные окружения или передавать через флаг командной строки при отключенной истории оболочки
   password: super-password
+  interface:
+    # ID интерфейса на роутере для которого надо удалять\добавлять маршруты
+    # Найти этот ID легко через команду show-interfaces после того как вы добавили ВПН подключение
+    id: "Wireguard0"
 
 # Бат-файлы из которых следует загрузить маршруты в роутер
 # Данные файлы должны быть размещены на дисках
@@ -91,10 +95,11 @@ docker pull "${GOKEENAPI_IMAGE}"
 docker run --rm -ti "${GOKEENAPI_IMAGE}" show-interfaces --url http://192.168.1.1 --login admin --password admin
 ```
 
-* Посмотреть интерфейсы на роутере - передача логин\пароля\апи через переменные окружения
+* Удалить все созданные маршруты для указанного интерфейса на роутере - передача логин\пароля\апи через переменные окружения
+* Обратите внимание, что флаг `--interface-id` обязателен (он так же может быть передан как переменная окружения либо через yaml конфиг файл)
 ```shell
 export GOKEENAPI_IMAGE="noksa/gokeenapi:latest"
-docker run --rm -ti -e GOKEENAPI_URL="http://192.168.1.1" -e GOKEENAPI_LOGIN="admin" -e OKEENAPI_PASSWORD="admin" "${GOKEENAPI_IMAGE}" show-interfaces
+docker run --rm -ti -e GOKEENAPI_URL="http://192.168.1.1" -e GOKEENAPI_LOGIN="admin" -e OKEENAPI_PASSWORD="admin" "${GOKEENAPI_IMAGE}" delete-routes --interface-id "Wireguard0"
 ```
 
 * Посмотреть интерфейсы на роутере - передача логин\пароля\апи через файл с переменными окружениями
@@ -107,8 +112,10 @@ echo -e "GOKEENAPI_PASSWORD=admin\n" >> .gokeenapienv
 docker run --rm -ti -v "$(pwd)/.gokeenapienv":"/gokeenapi/.gokeenapienv" "${GOKEENAPI_IMAGE}" show-interfaces
 ```
 
-* Посмотреть интерфейсы на роутере - передача логин\пароля\апи через YAML конфиг файл
+* Добавить маршруты для интерфейса на роутере - передача логин\пароля\апи через YAML конфиг файл
+* Передача `--interface-id` через флаг
+* Передача списков `bat-file` и `bat-url` через yaml конфиг (можно так же через флаг) 
 ```shell
 export GOKEENAPI_IMAGE="noksa/gokeenapi:latest"
-docker run --rm -ti -v "$(pwd)/config_example.yaml":"/gokeenapi/config.yaml" "${GOKEENAPI_IMAGE}" show-interfaces --config "/gokeenapi/config.yaml"
+docker run --rm -ti -v "$(pwd)/config_example.yaml":"/gokeenapi/config.yaml" "${GOKEENAPI_IMAGE}" add-routes --config "/gokeenapi/config.yaml" --interface-id "Wireguard0"
 ```
