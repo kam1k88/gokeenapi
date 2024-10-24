@@ -31,6 +31,10 @@ func newAddRoutesCmd() *cobra.Command {
 		if len(viper.GetStringSlice(config.ViperBatUrls)) == 0 && len(viper.GetStringSlice(config.ViperBatFiles)) == 0 {
 			return fmt.Errorf("at least one of --bat-file or --bat-url must be set")
 		}
+		err := checkInterfaceExists()
+		if err != nil {
+			return err
+		}
 		for _, file := range viper.GetStringSlice(config.ViperBatFiles) {
 			absFilePath, err := filepath.Abs(file)
 			if err != nil {

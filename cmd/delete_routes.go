@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/noksa/gokeenapi/internal/config"
 	"github.com/noksa/gokeenapi/pkg/keeneticapi"
 	"github.com/spf13/cobra"
@@ -23,19 +22,9 @@ func newDeleteRoutesCmd() *cobra.Command {
 	}
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		interfaces, err := keeneticapi.Interface.GetInterfacesViaRciShowInterfaces()
+		err := checkInterfaceExists()
 		if err != nil {
 			return err
-		}
-		interfaceFound := false
-		for _, interfaceDetails := range interfaces {
-			if interfaceDetails.Id == viper.GetString(config.ViperKeeneticInterfaceId) {
-				interfaceFound = true
-				break
-			}
-		}
-		if !interfaceFound {
-			return fmt.Errorf("keenetic router doesn't have interface with id '%v'", viper.GetString(config.ViperKeeneticInterfaceId))
 		}
 		routes, err := keeneticapi.Route.GetAllUserRoutesRciIpRoute(viper.GetString(config.ViperKeeneticInterfaceId))
 		if err != nil {
