@@ -50,11 +50,11 @@ docker pull "${GOKEENAPI_IMAGE}"
 docker run --rm -ti "${GOKEENAPI_IMAGE}" --help
 ```
 
-* View interfaces on the router - passing login\password\api via flags
+* View Wireguard interfaces on the router - passing login\password\api via flags
 ```shell
 export GOKEENAPI_IMAGE="noksa/gokeenapi:stable"
 docker pull "${GOKEENAPI_IMAGE}"
-docker run --rm -ti "${GOKEENAPI_IMAGE}" show-interfaces --url http://192.168.1.1 --login admin --password admin
+docker run --rm -ti "${GOKEENAPI_IMAGE}" show-interfaces --url http://192.168.1.1 --login admin --password admin --type Wireguard
 ```
 
 * View interfaces on the router - passing login\password\api via environment variables

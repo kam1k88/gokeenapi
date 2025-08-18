@@ -9,11 +9,23 @@ keenetic:
   login: super-login
   # can be replaced by GOKEENAPI_PASSWORD variable or --password flag
   password: super-password
+  # Interface settings to use
+  interface:
+    # Interface ID to use in commands.
+    # Can be fetched by running 'show-interfaces --type Wireguard' command
+    # Can be replaced by GOKEENAPI_INTERFACE variable or --interface-id flag
+    id: "Wireguard0"
+    # Conf file with Wireguard settings
+    # The file is used in confire-awg command to add/update ASC parameters on existing WG connections
+    # Can be replaced by --conf-file flag
+    conf_file: ""
 
+# A lit of bat files to add routes from to the interface
 # Can be replaced by --bat-file flag in add-routes command multiple times
-#bat-file:
-#  - /path/to/batfile.bat
+bat-file:
+  - /path/to/batfile.bat
 
+# A lit of urls to bat files from which routes should be added to the interface
 # Can be replaced by --bat-url flag in add-routes command multiple times
 bat-url:
   - https://iplist.opencck.org/?format=bat&data=cidr4&site=instagram.com
