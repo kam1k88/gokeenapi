@@ -1,9 +1,10 @@
-package keenspinner
+package gokeenspinner
 
 import (
 	"fmt"
-	"github.com/briandowns/spinner"
 	"time"
+
+	"github.com/briandowns/spinner"
 )
 
 func WrapWithSpinner(spinnerText string, f func() error) error {

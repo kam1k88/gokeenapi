@@ -12,7 +12,7 @@ import (
 
 	"github.com/go-resty/resty/v2"
 	"github.com/noksa/gokeenapi/internal/config"
-	"github.com/noksa/gokeenapi/internal/keenspinner"
+	"github.com/noksa/gokeenapi/internal/gokeenspinner"
 	"github.com/noksa/gokeenapi/pkg/models"
 	"github.com/spf13/viper"
 	"go.uber.org/multierr"
@@ -22,7 +22,7 @@ var restyClient *resty.Client
 var cookie string
 
 func Auth() error {
-	return keenspinner.WrapWithSpinner("Authorizing in API", func() error {
+	return gokeenspinner.WrapWithSpinner("Authorizing in API", func() error {
 		response, err := GetApiClient().R().Get("/auth")
 		var mErr error
 		if response != nil {
@@ -114,6 +114,17 @@ func ExecutePostParse(parse ...models.ParseRequest) ([]models.ParseResponse, err
 
 func ExecuteGetSubPath(path string) ([]byte, error) {
 	response, err := GetApiClient().R().Get(path)
+	if err != nil {
+		return nil, err
+	}
+	if response != nil {
+		return response.Body(), nil
+	}
+	return []byte{}, errors.New("no response from keenetic api")
+}
+
+func ExecutePostSubPath(path string, body any) ([]byte, error) {
+	response, err := GetApiClient().R().SetBody(body).Post(path)
 	if err != nil {
 		return nil, err
 	}

@@ -71,6 +71,7 @@ func NewRootCmd() *cobra.Command {
 		newDeleteRoutesCmd(),
 		newShowInterfacesCmd(),
 		newConfigureAwgCmd(),
+		newAddAwgCmd(),
 	)
 	return rootCmd
 }
