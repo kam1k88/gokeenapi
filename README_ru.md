@@ -33,6 +33,13 @@ https://github.com/user-attachments/assets/404e89cc-4675-42c4-ae93-4a0955b06348
 
 ---
 
+#### Видео
+
+Видео-инструкции
+* [Маршрутизация через gokeenapi](https://www.youtube.com/watch?v=lKX74btFypY)
+
+---
+
 #### Примеры конфигурации
 
 * [Yaml файл](https://github.com/Noksa/gokeenapi/blob/main/config_example.yaml)

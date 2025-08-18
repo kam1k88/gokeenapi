@@ -33,6 +33,13 @@ All options can be combined - for example, login\password and Router URL can be 
 
 ---
 
+#### Videos
+
+Videos with examples (note that language is Russian:
+* [Routes](https://www.youtube.com/watch?v=lKX74btFypY)
+
+---
+
 #### Examples
 
 The easiest way to start using `gokeenapi` is through docker containers or using the latest available release from [here](https://github.com/Noksa/gokeenapi/releases)
