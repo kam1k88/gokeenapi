@@ -7,14 +7,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/go-resty/resty/v2"
 	"github.com/noksa/gokeenapi/internal/config"
 	"github.com/noksa/gokeenapi/internal/keenspinner"
 	"github.com/noksa/gokeenapi/pkg/models"
 	"github.com/spf13/viper"
 	"go.uber.org/multierr"
-	"net/http"
-	"strings"
 )
 
 var restyClient *resty.Client
@@ -35,11 +36,17 @@ func Auth() error {
 				//secondRequest.Header.Set("Cookie", cookie)
 
 				md5Hash := md5.New()
-				md5Hash.Write([]byte(fmt.Sprintf("%v:%v:%v", viper.GetString(config.ViperKeeneticLogin), realm, viper.GetString(config.ViperKeeneticPassword))))
+				_, err = fmt.Fprintf(md5Hash, "%v:%v:%v", viper.GetString(config.ViperKeeneticLogin), realm, viper.GetString(config.ViperKeeneticPassword))
+				if err != nil {
+					return err
+				}
 				md5HashArg := md5Hash.Sum(nil)
 				md5HashStr := hex.EncodeToString(md5HashArg)
 				sha256Hash := sha256.New()
-				sha256Hash.Write([]byte(fmt.Sprintf("%v%v", token, md5HashStr)))
+				_, err = fmt.Fprintf(sha256Hash, "%v%v", token, md5HashStr)
+				if err != nil {
+					return err
+				}
 				sha256HashArg := sha256Hash.Sum(nil)
 				sha256HashStr := hex.EncodeToString(sha256HashArg)
 				secondRequest.SetBody(struct {
