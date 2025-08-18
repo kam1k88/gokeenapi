@@ -17,3 +17,8 @@ lint: ## Lint me
 build: lint ## Build
 	@chmod +x ./scripts/build.sh
 	@./scripts/build.sh
+
+.PHONY: binaries
+binaries: lint ## Build
+	@chmod +x ./scripts/create_binaries.sh
+	@cd ./scripts && ./create_binaries.sh --version ${VERSION}

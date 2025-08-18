@@ -58,6 +58,10 @@ func newAddAwgCmd() *cobra.Command {
 		if err != nil {
 			return err
 		}
+		err = gokeenrestapi.Interface.SetGlobalIpInInterface(createdInterface.Created, true)
+		if err != nil {
+			return err
+		}
 		if up {
 			err = gokeenrestapi.Interface.UpInterface(createdInterface.Created)
 			if err != nil {
@@ -75,7 +79,7 @@ func newAddAwgCmd() *cobra.Command {
 					}
 					time.Sleep(time.Millisecond * 500)
 				}
-				return fmt.Errorf("looks like interface %v is no up. Please check The keenetic web-interface", createdInterface.Created)
+				return fmt.Errorf("looks like interface %v is still not up. Please check The keenetic web-interface", createdInterface.Created)
 			})
 		}
 		return err

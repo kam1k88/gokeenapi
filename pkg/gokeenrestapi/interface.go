@@ -113,3 +113,24 @@ func (*keeneticInterface) UpInterface(interfaceId string) error {
 	gokeenlog.PrintParseResponse(parseResponse)
 	return err
 }
+
+func (*keeneticInterface) SetGlobalIpInInterface(interfaceId string, global bool) error {
+	var parseSlice []models.ParseRequest
+	val := "ip global auto"
+	if !global {
+		val = "no ip global"
+	}
+	parseSlice = append(parseSlice, models.ParseRequest{
+		Parse: fmt.Sprintf("interface %v %v", interfaceId, val),
+	}, models.ParseRequest{
+		Parse: "system configuration save",
+	})
+	var parseResponse []models.ParseResponse
+	err := gokeenspinner.WrapWithSpinner(fmt.Sprintf("Changing global IP in %v interface to %v", color.CyanString(interfaceId), color.GreenString("%v", global)), func() error {
+		var executeErr error
+		parseResponse, executeErr = ExecutePostParse(parseSlice...)
+		return executeErr
+	})
+	gokeenlog.PrintParseResponse(parseResponse)
+	return err
+}

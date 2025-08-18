@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
-	"github.com/noksa/gokeenapi/cmd"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/fatih/color"
+	"github.com/noksa/gokeenapi/cmd"
+	"github.com/noksa/gokeenapi/internal/gokeenlog"
 )
 
 func main() {
@@ -24,6 +27,7 @@ func main() {
 	}
 	cmd.RestoreCursor()
 	if err != nil {
+		gokeenlog.Info(color.RedString("Error occured!"))
 		os.Exit(100)
 	}
 }

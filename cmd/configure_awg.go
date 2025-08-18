@@ -37,11 +37,11 @@ func configureInterface(confPath, interfaceId string) error {
 	if confPath == "" {
 		return fmt.Errorf("conf-file flag is required")
 	}
-	err := checkInterfaceId()
+	err := checkInterfaceId(interfaceId)
 	if err != nil {
 		return err
 	}
-	err = checkInterfaceExists()
+	err = checkInterfaceExists(interfaceId)
 	if err != nil {
 		return err
 	}

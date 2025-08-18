@@ -30,27 +30,27 @@ func checkRequiredFields() error {
 	return mErr
 }
 
-func checkInterfaceId() error {
-	if viper.GetString(config.ViperKeeneticInterfaceId) == "" {
+func checkInterfaceId(interfaceId string) error {
+	if interfaceId == "" {
 		return errors.New("please specify a keenetic interface id via flag/field/variable")
 	}
 	return nil
 }
 
-func checkInterfaceExists() error {
+func checkInterfaceExists(interfaceId string) error {
 	interfaces, err := gokeenrestapi.Interface.GetInterfacesViaRciShowInterfaces()
 	if err != nil {
 		return err
 	}
 	interfaceFound := false
 	for _, interfaceDetails := range interfaces {
-		if interfaceDetails.Id == viper.GetString(config.ViperKeeneticInterfaceId) {
+		if interfaceDetails.Id == interfaceId {
 			interfaceFound = true
 			break
 		}
 	}
 	if !interfaceFound {
-		return fmt.Errorf("keenetic router doesn't have interface with id '%v'. Verify that you specified correct ID", viper.GetString(config.ViperKeeneticInterfaceId))
+		return fmt.Errorf("keenetic router doesn't have interface with id '%v'. Verify that you specified correct ID", interfaceId)
 	}
 	return nil
 }

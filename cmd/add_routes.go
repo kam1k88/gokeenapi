@@ -2,11 +2,12 @@ package cmd
 
 import (
 	"fmt"
+	"path/filepath"
+
 	"github.com/noksa/gokeenapi/internal/config"
 	"github.com/noksa/gokeenapi/pkg/gokeenrestapi"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"path/filepath"
 )
 
 func newAddRoutesCmd() *cobra.Command {
@@ -30,11 +31,11 @@ func newAddRoutesCmd() *cobra.Command {
 		if len(viper.GetStringSlice(config.ViperBatUrls)) == 0 && len(viper.GetStringSlice(config.ViperBatFiles)) == 0 {
 			return fmt.Errorf("at least one of --bat-file or --bat-url must be set")
 		}
-		err := checkInterfaceId()
+		err := checkInterfaceId(viper.GetString(config.ViperKeeneticInterfaceId))
 		if err != nil {
 			return err
 		}
-		err = checkInterfaceExists()
+		err = checkInterfaceExists(viper.GetString(config.ViperKeeneticInterfaceId))
 		if err != nil {
 			return err
 		}

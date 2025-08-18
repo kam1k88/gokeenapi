@@ -21,11 +21,11 @@ func newDeleteRoutesCmd() *cobra.Command {
 	}
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		err := checkInterfaceId()
+		err := checkInterfaceId(viper.GetString(config.ViperKeeneticInterfaceId))
 		if err != nil {
 			return err
 		}
-		err = checkInterfaceExists()
+		err = checkInterfaceExists(viper.GetString(config.ViperKeeneticInterfaceId))
 		if err != nil {
 			return err
 		}
