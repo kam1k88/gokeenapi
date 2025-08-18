@@ -22,7 +22,6 @@ func newAddAwgCmd() *cobra.Command {
 	}
 
 	cmd.Flags().String("conf-file", "", "Path to a conf TOML file with WG configuration")
-	cmd.Flags().String("interface-name", "", "Name for new WG interface, optional")
 	var configure bool
 	var up bool
 	var name string
