@@ -14,6 +14,6 @@ lint: ## Lint me
 	@./scripts/check.sh
 
 .PHONY: build
-build: ## Build
+build: lint ## Build
 	@chmod +x ./scripts/build.sh
 	@./scripts/build.sh
