@@ -21,9 +21,8 @@ func newConfigureAwgCmd() *cobra.Command {
 		Short:   "Configure Wireguard connection to add ASC parameters to it in Keenetic router",
 	}
 
-	var confPath string
 	cmd.Flags().String("interface-id", "", "Keenetic interface ID to configure")
-	cmd.Flags().StringVar(&confPath, "conf-file", "", "Path to a conf TOML file with AWG configuration")
+	cmd.Flags().String("conf-file", "", "Path to a conf TOML file with AWG configuration")
 
 	cmd.PreRun = func(cmd *cobra.Command, args []string) {
 		_ = viper.BindPFlag(config.ViperKeeneticInterfaceId, cmd.Flags().Lookup("interface-id"))
@@ -31,6 +30,7 @@ func newConfigureAwgCmd() *cobra.Command {
 	}
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		confPath := viper.GetString(config.ViperKeeneticInterfaceConfFile)
 		if confPath == "" {
 			return fmt.Errorf("conf-file flag is required")
 		}
