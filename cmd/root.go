@@ -5,9 +5,9 @@ import (
 	"strings"
 
 	"github.com/joho/godotenv"
-	"github.com/noksa/gokeenapi/internal/config"
 	"github.com/noksa/gokeenapi/internal/gokeenlog"
 	"github.com/noksa/gokeenapi/internal/gokeenversion"
+	"github.com/noksa/gokeenapi/pkg/config"
 	"github.com/noksa/gokeenapi/pkg/gokeenrestapi"
 	"github.com/spf13/cobra"
 )

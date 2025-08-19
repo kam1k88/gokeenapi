@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/noksa/gokeenapi/internal/config"
+	"github.com/noksa/gokeenapi/pkg/config"
 	"github.com/noksa/gokeenapi/pkg/gokeenrestapi"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -21,11 +21,11 @@ func newDeleteRoutesCmd() *cobra.Command {
 	}
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		err := checkInterfaceId(viper.GetString(config.ViperKeeneticInterfaceId))
+		err := gokeenrestapi.Checks.CheckInterfaceId(viper.GetString(config.ViperKeeneticInterfaceId))
 		if err != nil {
 			return err
 		}
-		err = checkInterfaceExists(viper.GetString(config.ViperKeeneticInterfaceId))
+		err = gokeenrestapi.Checks.CheckInterfaceExists(viper.GetString(config.ViperKeeneticInterfaceId))
 		if err != nil {
 			return err
 		}

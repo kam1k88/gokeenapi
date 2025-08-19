@@ -11,8 +11,8 @@ import (
 	"strings"
 
 	"github.com/go-resty/resty/v2"
-	"github.com/noksa/gokeenapi/internal/config"
 	"github.com/noksa/gokeenapi/internal/gokeenspinner"
+	"github.com/noksa/gokeenapi/pkg/config"
 	"github.com/noksa/gokeenapi/pkg/models"
 	"github.com/spf13/viper"
 	"go.uber.org/multierr"

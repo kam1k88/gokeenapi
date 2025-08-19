@@ -10,26 +10,98 @@ import (
 	"github.com/fatih/color"
 	"github.com/noksa/gokeenapi/internal/gokeenspinner"
 	"github.com/noksa/gokeenapi/pkg/models"
+	"go.uber.org/multierr"
+	"gopkg.in/ini.v1"
 )
 
 var AwgConf keeneticAwgconf
 
 type keeneticAwgconf struct{}
 
-func (*keeneticAwgconf) ConfigureOrUpdateInterface(interfaceId, jc, jmin, jmax, s1, s2, h1, h2, h3, h4 string) error {
+func (*keeneticAwgconf) ConfigureOrUpdateInterface(confPath, interfaceId string) error {
+	if confPath == "" {
+		return fmt.Errorf("conf-file flag is required")
+	}
+	err := Checks.CheckInterfaceId(interfaceId)
+	if err != nil {
+		return err
+	}
+	err = Checks.CheckInterfaceExists(interfaceId)
+	if err != nil {
+		return err
+	}
+	var Jcstring, Jminstring, Jmaxstring, S1string, S2string, H1string, H2string, H3string, H4string string
+	confPath, err = filepath.Abs(confPath)
+	if err != nil {
+		return err
+	}
+	cfg, err := ini.Load(confPath)
+	if err != nil {
+		return err
+	}
+	interfaceSection, err := cfg.GetSection("Interface")
+	if err != nil {
+		return err
+	}
+	Jc, err := interfaceSection.GetKey("Jc")
+	if err != nil {
+		return err
+	}
+	Jcstring = Jc.String()
+	Jmin, err := interfaceSection.GetKey("Jmin")
+	if err != nil {
+		return err
+	}
+	Jminstring = Jmin.String()
+	Jmax, err := interfaceSection.GetKey("Jmax")
+	if err != nil {
+		return err
+	}
+	Jmaxstring = Jmax.String()
+	S1, err := interfaceSection.GetKey("S1")
+	if err != nil {
+		return err
+	}
+	S1string = S1.String()
+	S2, err := interfaceSection.GetKey("S2")
+	if err != nil {
+		return err
+	}
+	S2string = S2.String()
+	H1, err := interfaceSection.GetKey("H1")
+	if err != nil {
+		return err
+	}
+	H1string = H1.String()
+	H2, err := interfaceSection.GetKey("H2")
+	if err != nil {
+		return err
+	}
+	H2string = H2.String()
+	H3, err := interfaceSection.GetKey("H3")
+	if err != nil {
+		return err
+	}
+	H3string = H3.String()
+	H4, err := interfaceSection.GetKey("H4")
+	if err != nil {
+		return err
+	}
+	H4string = H4.String()
+
 	var parseSlice []models.ParseRequest
 	confParse := models.ParseRequest{}
 	confParse.Parse = fmt.Sprintf("interface %v wireguard asc %v %v %v %v %v %v %v %v %v",
 		interfaceId,
-		jc,
-		jmin,
-		jmax,
-		s1,
-		s2,
-		h1,
-		h2,
-		h3,
-		h4)
+		Jcstring,
+		Jminstring,
+		Jmaxstring,
+		S1string,
+		S2string,
+		H1string,
+		H2string,
+		H3string,
+		H4string)
 	parseSlice = append(parseSlice, confParse,
 		models.ParseRequest{Parse: "system configuration save"})
 	return gokeenspinner.WrapWithSpinner(fmt.Sprintf("Configuring %v interface with ASC parameters", color.CyanString(interfaceId)), func() error {
@@ -56,6 +128,11 @@ func (*keeneticAwgconf) AddInterface(confFile string, name string) (CreatedInter
 			return err
 		}
 		err = json.Unmarshal(response, &createdInterface)
+		for _, status := range createdInterface.Status {
+			if status.Status == "error" {
+				err = multierr.Append(err, fmt.Errorf("%v - %v - %v - %v", status.Status, status.Code, status.Ident, status.Message))
+			}
+		}
 		return err
 	})
 	return createdInterface, err

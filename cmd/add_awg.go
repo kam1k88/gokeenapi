@@ -3,12 +3,10 @@ package cmd
 import (
 	"fmt"
 	"path/filepath"
-	"time"
 
 	"github.com/fatih/color"
-	"github.com/noksa/gokeenapi/internal/config"
 	"github.com/noksa/gokeenapi/internal/gokeenlog"
-	"github.com/noksa/gokeenapi/internal/gokeenspinner"
+	"github.com/noksa/gokeenapi/pkg/config"
 	"github.com/noksa/gokeenapi/pkg/gokeenrestapi"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -41,7 +39,7 @@ func newAddAwgCmd() *cobra.Command {
 		if err != nil {
 			return err
 		}
-		err = checkAWGInterfaceExistsFromConfFile(confPath)
+		err = gokeenrestapi.Checks.CheckAWGInterfaceExistsFromConfFile(confPath)
 		if err != nil {
 			return err
 		}
@@ -53,7 +51,7 @@ func newAddAwgCmd() *cobra.Command {
 		gokeenlog.Info("Created Wireguard interface!")
 		gokeenlog.InfoSubStepf("Id: %v", color.CyanString(createdInterface.Created))
 		if configure {
-			err = configureInterface(confPath, createdInterface.Created)
+			err = gokeenrestapi.AwgConf.ConfigureOrUpdateInterface(confPath, createdInterface.Created)
 		}
 		if err != nil {
 			return err
@@ -67,20 +65,7 @@ func newAddAwgCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			err = gokeenspinner.WrapWithSpinner(fmt.Sprintf("Waiting 60s until %v interface is up, connected to peers and working", createdInterface.Created), func() error {
-				deadline := time.Now().Add(time.Second * 60)
-				for time.Now().Before(deadline) {
-					myInterface, err := gokeenrestapi.Interface.GetInterfaceViaRciShowInterfaces(createdInterface.Created)
-					if err != nil {
-						return err
-					}
-					if myInterface.Connected == "yes" && myInterface.Link == "up" && myInterface.State == "up" {
-						return nil
-					}
-					time.Sleep(time.Millisecond * 500)
-				}
-				return fmt.Errorf("looks like interface %v is still not up. Please check The keenetic web-interface", createdInterface.Created)
-			})
+			err = gokeenrestapi.Interface.WaitUntilInterfaceIsUp(createdInterface.Created)
 		}
 		return err
 	}

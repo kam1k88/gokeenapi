@@ -2,7 +2,8 @@ package gokeenlog
 
 import (
 	"fmt"
-	"github.com/noksa/gokeenapi/internal/config"
+
+	"github.com/noksa/gokeenapi/pkg/config"
 	"github.com/noksa/gokeenapi/pkg/models"
 	"github.com/spf13/viper"
 )

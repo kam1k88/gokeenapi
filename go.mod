@@ -1,6 +1,6 @@
 module github.com/noksa/gokeenapi
 
-go 1.25
+go 1.24
 
 require (
 	github.com/briandowns/spinner v1.23.1

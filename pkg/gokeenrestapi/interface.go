@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/fatih/color"
 	"github.com/noksa/gokeenapi/internal/gokeenlog"
@@ -95,6 +96,24 @@ func (*keeneticInterface) PrintInfoAboutInterfaces(interfaces map[string]models.
 		gokeenlog.Infof("")
 	}
 
+}
+
+func (*keeneticInterface) WaitUntilInterfaceIsUp(interfaceId string) error {
+	err := gokeenspinner.WrapWithSpinner(fmt.Sprintf("Waiting 60s until %v interface is up, connected to peers and working", interfaceId), func() error {
+		deadline := time.Now().Add(time.Second * 60)
+		for time.Now().Before(deadline) {
+			myInterface, err := Interface.GetInterfaceViaRciShowInterfaces(interfaceId)
+			if err != nil {
+				return err
+			}
+			if myInterface.Connected == "yes" && myInterface.Link == "up" && myInterface.State == "up" {
+				return nil
+			}
+			time.Sleep(time.Millisecond * 500)
+		}
+		return fmt.Errorf("looks like interface %v is still not up. Please check The keenetic web-interface", interfaceId)
+	})
+	return err
 }
 
 func (*keeneticInterface) UpInterface(interfaceId string) error {
