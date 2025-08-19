@@ -1,10 +1,16 @@
 ## Utility to run commands (such add add/del routes) in Keenetic routers via REST API
 
-###### [Russian doc (Документация на русском)](https://github.com/Noksa/gokeenapi/blob/main/README_ru.md)
-
 #### Video
 
 https://github.com/user-attachments/assets/404e89cc-4675-42c4-ae93-4a0955b06348
+
+---
+
+#### Version with UI
+
+There is a GUI `gokeenapi` version available [here](https://github.com/Noksa/gokeenapi)
+
+If you don't like or don't know how to use CLI programs, consider using the GUI version
 
 ---
 
