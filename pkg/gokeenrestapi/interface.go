@@ -28,6 +28,16 @@ func (*keeneticInterface) GetInterfaceViaRciShowInterfaces(interfaceId string) (
 	return myInterface, err
 }
 
+func (*keeneticInterface) GetInterfaceViaRciShowScInterfaces(interfaceId string) (models.RciShowScInterface, error) {
+	var myInterface models.RciShowScInterface
+	body, err := ExecuteGetSubPath(fmt.Sprintf("/rci/show/sc/interface/%v", interfaceId))
+	if err != nil {
+		return myInterface, err
+	}
+	err = json.Unmarshal(body, &myInterface)
+	return myInterface, err
+}
+
 func (*keeneticInterface) GetInterfacesViaRciShowInterfaces(interfaceTypes ...string) (map[string]models.RciShowInterface, error) {
 	var interfaces map[string]models.RciShowInterface
 	err := gokeenspinner.WrapWithSpinner("Fetching interfaces", func() error {

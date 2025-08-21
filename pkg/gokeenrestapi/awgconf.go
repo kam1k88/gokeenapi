@@ -18,6 +18,8 @@ var AwgConf keeneticAwgconf
 
 type keeneticAwgconf struct{}
 
+// ConfigureOrUpdateInterface checks if ACS parameters should be adjusted in the interfaceId
+// Starting from 4.3.6 KeeneticOS automatically adds ACS from AWG conf file when it is imported
 func (*keeneticAwgconf) ConfigureOrUpdateInterface(confPath, interfaceId string) error {
 	if confPath == "" {
 		return fmt.Errorf("conf-file flag is required")
@@ -88,6 +90,45 @@ func (*keeneticAwgconf) ConfigureOrUpdateInterface(confPath, interfaceId string)
 		return err
 	}
 	H4string = H4.String()
+
+	interfaceDetails, err := Interface.GetInterfaceViaRciShowScInterfaces(interfaceId)
+	if err != nil {
+		return err
+	}
+	shouldApply := false
+
+	asc := interfaceDetails.Wireguard.Asc
+
+	if asc.Jc != Jcstring {
+		shouldApply = true
+	}
+	if asc.Jmin != Jminstring {
+		shouldApply = true
+	}
+	if asc.Jmax != Jmaxstring {
+		shouldApply = true
+	}
+	if asc.S1 != S1string {
+		shouldApply = true
+	}
+	if asc.S2 != S2string {
+		shouldApply = true
+	}
+	if asc.H1 != H1string {
+		shouldApply = true
+	}
+	if asc.H2 != H2string {
+		shouldApply = true
+	}
+	if asc.H3 != H3string {
+		shouldApply = true
+	}
+	if asc.H4 != H4string {
+		shouldApply = true
+	}
+	if !shouldApply {
+		return nil
+	}
 
 	var parseSlice []models.ParseRequest
 	confParse := models.ParseRequest{}

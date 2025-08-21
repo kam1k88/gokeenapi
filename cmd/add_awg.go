@@ -23,8 +23,8 @@ func newAddAwgCmd() *cobra.Command {
 	var configure bool
 	var up bool
 	var name string
-	cmd.Flags().BoolVar(&configure, "configure", false, "Add ASC parameters to the connection after creating from config file")
-	cmd.Flags().BoolVar(&up, "up", false, "Bring interface up after creating")
+	cmd.Flags().BoolVar(&configure, "configure", true, "Add ASC parameters to the connection after creating from config file")
+	cmd.Flags().BoolVar(&up, "up", true, "Bring interface up after creating")
 	cmd.Flags().StringVar(&name, "name", "", "Name for new WG interface, optional")
 	cmd.PreRun = func(cmd *cobra.Command, args []string) {
 		_ = viper.BindPFlag(config.ViperKeeneticInterfaceConfFile, cmd.Flags().Lookup("conf-file"))
@@ -48,8 +48,7 @@ func newAddAwgCmd() *cobra.Command {
 		if err != nil {
 			return err
 		}
-		gokeenlog.Info("Created Wireguard interface!")
-		gokeenlog.InfoSubStepf("Id: %v", color.CyanString(createdInterface.Created))
+		gokeenlog.InfoSubStepf("ID: %v", color.CyanString(createdInterface.Created))
 		if configure {
 			err = gokeenrestapi.AwgConf.ConfigureOrUpdateInterface(confPath, createdInterface.Created)
 		}
