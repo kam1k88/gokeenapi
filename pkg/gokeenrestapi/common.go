@@ -10,20 +10,29 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/fatih/color"
 	"github.com/go-resty/resty/v2"
+	"github.com/noksa/gokeenapi/internal/gokeenlog"
 	"github.com/noksa/gokeenapi/internal/gokeenspinner"
 	"github.com/noksa/gokeenapi/pkg/config"
-	"github.com/noksa/gokeenapi/pkg/models"
+	"github.com/noksa/gokeenapi/pkg/gokeencache"
+	"github.com/noksa/gokeenapi/pkg/gokeenrestapimodels"
 	"github.com/spf13/viper"
 	"go.uber.org/multierr"
 )
 
-var restyClient *resty.Client
-var cookie string
+var (
+	restyClient *resty.Client
+	cookie      string
+	Common      keeneticCommon
+)
 
-func Auth() error {
-	return gokeenspinner.WrapWithSpinner("Authorizing in API", func() error {
-		response, err := GetApiClient().R().Get("/auth")
+type keeneticCommon struct {
+}
+
+func (c *keeneticCommon) Auth() error {
+	err := gokeenspinner.WrapWithSpinner("Authorizing in Keenetic", func() error {
+		response, err := c.GetApiClient().R().Get("/auth")
 		var mErr error
 		if response != nil {
 			if response.StatusCode() == http.StatusUnauthorized {
@@ -32,7 +41,7 @@ func Auth() error {
 				setCookieStr := response.Header().Get("set-cookie")
 				setCookieStrSplitted := strings.Split(setCookieStr, ";")
 				cookie = setCookieStrSplitted[0]
-				secondRequest := GetApiClient().R()
+				secondRequest := c.GetApiClient().R()
 				//secondRequest.Header.Set("Cookie", cookie)
 
 				md5Hash := md5.New()
@@ -68,14 +77,34 @@ func Auth() error {
 		mErr = multierr.Append(mErr, err)
 		return mErr
 	})
+	if err == nil {
+		version, err := c.Version()
+		if err != nil {
+			return err
+		}
+		gokeenlog.InfoSubStepf("Router: %v", color.CyanString(version.Model))
+		gokeenlog.InfoSubStepf("OS version: %v", color.CyanString(version.Title))
+		gokeencache.SetVersion(version)
+	}
+	return err
 }
 
-func ExecutePostParse(parse ...models.ParseRequest) ([]models.ParseResponse, error) {
+func (c *keeneticCommon) Version() (gokeenrestapimodels.Version, error) {
+	b, err := c.ExecuteGetSubPath("/rci/show/version")
+	if err != nil {
+		return gokeenrestapimodels.Version{}, err
+	}
+	var version gokeenrestapimodels.Version
+	err = json.Unmarshal(b, &version)
+	return version, err
+}
+
+func (c *keeneticCommon) ExecutePostParse(parse ...gokeenrestapimodels.ParseRequest) ([]gokeenrestapimodels.ParseResponse, error) {
 	parseCopy := parse
-	var parseResponse []models.ParseResponse
+	var parseResponse []gokeenrestapimodels.ParseResponse
 	var mErr error
 	for len(parseCopy) > 0 {
-		request := GetApiClient().R()
+		request := c.GetApiClient().R()
 		maxParse := viper.GetInt("keenetic.routesPerRequest")
 		if maxParse == 0 {
 			maxParse = 50
@@ -86,7 +115,7 @@ func ExecutePostParse(parse ...models.ParseRequest) ([]models.ParseResponse, err
 		if currentLen < maxParse {
 			maxParse = currentLen
 		}
-		var parseRequest []models.ParseRequest
+		var parseRequest []gokeenrestapimodels.ParseRequest
 		for i := 0; i < maxParse; i++ {
 			parseRequest = append(parseRequest, parseCopy[i])
 		}
@@ -112,8 +141,8 @@ func ExecutePostParse(parse ...models.ParseRequest) ([]models.ParseResponse, err
 	return parseResponse, mErr
 }
 
-func ExecuteGetSubPath(path string) ([]byte, error) {
-	response, err := GetApiClient().R().Get(path)
+func (c *keeneticCommon) ExecuteGetSubPath(path string) ([]byte, error) {
+	response, err := c.GetApiClient().R().Get(path)
 	if err != nil {
 		return nil, err
 	}
@@ -123,8 +152,8 @@ func ExecuteGetSubPath(path string) ([]byte, error) {
 	return []byte{}, errors.New("no response from keenetic api")
 }
 
-func ExecutePostSubPath(path string, body any) ([]byte, error) {
-	response, err := GetApiClient().R().SetBody(body).Post(path)
+func (c *keeneticCommon) ExecutePostSubPath(path string, body any) ([]byte, error) {
+	response, err := c.GetApiClient().R().SetBody(body).Post(path)
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +163,7 @@ func ExecutePostSubPath(path string, body any) ([]byte, error) {
 	return []byte{}, errors.New("no response from keenetic api")
 }
 
-func GetApiClient() *resty.Client {
+func (*keeneticCommon) GetApiClient() *resty.Client {
 	if restyClient != nil {
 		if restyClient.Header.Get("Cookie") == "" && cookie != "" {
 			restyClient.Header.Set("Cookie", cookie)

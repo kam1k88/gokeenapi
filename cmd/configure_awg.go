@@ -10,7 +10,7 @@ import (
 func newConfigureAwgCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "configure-awg",
-		Aliases: []string{"configureawg"},
+		Aliases: []string{"configureawg", "cawg"},
 		Short:   "Configure Wireguard connection to add ASC parameters to it in Keenetic router",
 	}
 

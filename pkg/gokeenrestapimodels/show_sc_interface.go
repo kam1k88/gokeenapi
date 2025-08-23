@@ -1,4 +1,4 @@
-package models
+package gokeenrestapimodels
 
 type SecurityLevel struct {
 	Public bool `json:"public"`

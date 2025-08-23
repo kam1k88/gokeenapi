@@ -63,7 +63,7 @@ func NewRootCmd() *cobra.Command {
 		if viper.GetString(config.ViperKeeneticConfig) != "" {
 			gokeenlog.InfoSubStepf("Config: %v", viper.GetString(config.ViperKeeneticConfig))
 		}
-		return gokeenrestapi.Auth()
+		return gokeenrestapi.Common.Auth()
 	}
 
 	rootCmd.AddCommand(

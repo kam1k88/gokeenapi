@@ -13,7 +13,7 @@ import (
 	"github.com/noksa/gokeenapi/internal/gokeenlog"
 	"github.com/noksa/gokeenapi/internal/gokeenspinner"
 	"github.com/noksa/gokeenapi/pkg/config"
-	"github.com/noksa/gokeenapi/pkg/models"
+	"github.com/noksa/gokeenapi/pkg/gokeenrestapimodels"
 	"github.com/spf13/viper"
 	"go.uber.org/multierr"
 )
@@ -27,10 +27,10 @@ type keeneticRoute struct {
 
 var Route keeneticRoute
 
-func (*keeneticRoute) GetAllUserRoutesRciIpRoute(keeneticInterface string) ([]models.RciIpRoute, error) {
-	var routes []models.RciIpRoute
+func (*keeneticRoute) GetAllUserRoutesRciIpRoute(keeneticInterface string) ([]gokeenrestapimodels.RciIpRoute, error) {
+	var routes []gokeenrestapimodels.RciIpRoute
 	err := gokeenspinner.WrapWithSpinner("Fetching static routes", func() error {
-		body, err := ExecuteGetSubPath("/rci/ip/route")
+		body, err := Common.ExecuteGetSubPath("/rci/ip/route")
 		if err != nil {
 			return err
 		}
@@ -39,7 +39,7 @@ func (*keeneticRoute) GetAllUserRoutesRciIpRoute(keeneticInterface string) ([]mo
 	if err != nil {
 		return nil, err
 	}
-	var realRoutes []models.RciIpRoute
+	var realRoutes []gokeenrestapimodels.RciIpRoute
 	for _, route := range routes {
 		route := route
 		if route.Interface == keeneticInterface {
@@ -50,18 +50,18 @@ func (*keeneticRoute) GetAllUserRoutesRciIpRoute(keeneticInterface string) ([]mo
 	return realRoutes, err
 }
 
-func (*keeneticRoute) DeleteRoutes(routes []models.RciIpRoute) error {
+func (*keeneticRoute) DeleteRoutes(routes []gokeenrestapimodels.RciIpRoute) error {
 	if len(routes) == 0 {
 		gokeenlog.Info("No need to delete static routes")
 		return nil
 	}
-	var parseSlice []models.ParseRequest
+	var parseSlice []gokeenrestapimodels.ParseRequest
 	keeneticInterface := viper.GetString(config.ViperKeeneticInterfaceId)
 	for _, route := range routes {
 		if route.Interface != keeneticInterface {
 			continue
 		}
-		parse := models.ParseRequest{}
+		parse := gokeenrestapimodels.ParseRequest{}
 		var ip string
 		if route.Host != "" {
 			ip = route.Host
@@ -73,7 +73,7 @@ func (*keeneticRoute) DeleteRoutes(routes []models.RciIpRoute) error {
 		parseSlice = append(parseSlice, parse)
 	}
 	return gokeenspinner.WrapWithSpinner(fmt.Sprintf("Deleting %v static routes with %v interface", color.MagentaString("%v", len(parseSlice)), keeneticInterface), func() error {
-		_, err := ExecutePostParse(parseSlice...)
+		_, err := Common.ExecutePostParse(parseSlice...)
 		return err
 	})
 }
@@ -87,7 +87,7 @@ func (*keeneticRoute) AddRoutesFromBatFile(batFile string) error {
 	str := string(b)
 	var mErr error
 	splitted := strings.Split(str, "\n")
-	var parseSlice []models.ParseRequest
+	var parseSlice []gokeenrestapimodels.ParseRequest
 	for _, line := range splitted {
 		if line == "" {
 			continue
@@ -101,12 +101,12 @@ func (*keeneticRoute) AddRoutesFromBatFile(batFile string) error {
 		}
 		ip := sl[1]
 		mask := sl[2]
-		parseSlice = append(parseSlice, models.ParseRequest{Parse: fmt.Sprintf("ip route %v %v %v auto", ip, mask, viper.GetString(config.ViperKeeneticInterfaceId))})
+		parseSlice = append(parseSlice, gokeenrestapimodels.ParseRequest{Parse: fmt.Sprintf("ip route %v %v %v auto", ip, mask, viper.GetString(config.ViperKeeneticInterfaceId))})
 	}
-	var parseResponse []models.ParseResponse
+	var parseResponse []gokeenrestapimodels.ParseResponse
 	mErr = multierr.Append(mErr, gokeenspinner.WrapWithSpinner(fmt.Sprintf("Adding %v static routes from %v file to %v interface", color.MagentaString("%v", len(parseSlice)), color.CyanString(batFile), color.BlueString(viper.GetString(config.ViperKeeneticInterfaceId))), func() error {
 		var executeErr error
-		parseResponse, executeErr = ExecutePostParse(parseSlice...)
+		parseResponse, executeErr = Common.ExecutePostParse(parseSlice...)
 		return executeErr
 	}))
 	gokeenlog.PrintParseResponse(parseResponse)
@@ -130,7 +130,7 @@ func (*keeneticRoute) AddRoutesFromBatUrl(url string) error {
 	str := string(response.Body())
 	var mErr error
 	splitted := strings.Split(str, "\n")
-	var parseSlice []models.ParseRequest
+	var parseSlice []gokeenrestapimodels.ParseRequest
 	for _, line := range splitted {
 		if line == "" {
 			continue
@@ -144,12 +144,12 @@ func (*keeneticRoute) AddRoutesFromBatUrl(url string) error {
 		}
 		ip := sl[1]
 		mask := sl[2]
-		parseSlice = append(parseSlice, models.ParseRequest{Parse: fmt.Sprintf("ip route %v %v %v auto", ip, mask, viper.GetString(config.ViperKeeneticInterfaceId))})
+		parseSlice = append(parseSlice, gokeenrestapimodels.ParseRequest{Parse: fmt.Sprintf("ip route %v %v %v auto", ip, mask, viper.GetString(config.ViperKeeneticInterfaceId))})
 	}
-	var parseResponse []models.ParseResponse
+	var parseResponse []gokeenrestapimodels.ParseResponse
 	mErr = multierr.Append(mErr, gokeenspinner.WrapWithSpinner(fmt.Sprintf("Adding %v static routes to %v interface", color.MagentaString("%v", len(parseSlice)), color.BlueString(viper.GetString(config.ViperKeeneticInterfaceId))), func() error {
 		var executeErr error
-		parseResponse, executeErr = ExecutePostParse(parseSlice...)
+		parseResponse, executeErr = Common.ExecutePostParse(parseSlice...)
 		return executeErr
 	}))
 	gokeenlog.PrintParseResponse(parseResponse)

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/noksa/gokeenapi/pkg/config"
-	"github.com/noksa/gokeenapi/pkg/models"
+	"github.com/noksa/gokeenapi/pkg/gokeenrestapimodels"
 	"github.com/spf13/viper"
 )
 
@@ -34,7 +34,7 @@ func InfoSubStep(msg string) {
 	fmt.Printf("      ▪ %v\n", msg)
 }
 
-func PrintParseResponse(parseResponse []models.ParseResponse) {
+func PrintParseResponse(parseResponse []gokeenrestapimodels.ParseResponse) {
 	if !viper.GetBool(config.ViperDebug) {
 		return
 	}

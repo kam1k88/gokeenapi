@@ -15,7 +15,7 @@ import (
 func newAddAwgCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "add-awg",
-		Aliases: []string{"addawg"},
+		Aliases: []string{"addawg", "aawg"},
 		Short:   "Add AWG connection from config file in Keenetic router",
 	}
 

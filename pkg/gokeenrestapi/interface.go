@@ -10,7 +10,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/noksa/gokeenapi/internal/gokeenlog"
 	"github.com/noksa/gokeenapi/internal/gokeenspinner"
-	"github.com/noksa/gokeenapi/pkg/models"
+	"github.com/noksa/gokeenapi/pkg/gokeenrestapimodels"
 )
 
 type keeneticInterface struct {
@@ -18,9 +18,9 @@ type keeneticInterface struct {
 
 var Interface keeneticInterface
 
-func (*keeneticInterface) GetInterfaceViaRciShowInterfaces(interfaceId string) (models.RciShowInterface, error) {
-	var myInterface models.RciShowInterface
-	body, err := ExecuteGetSubPath(fmt.Sprintf("/rci/show/interface/%v", interfaceId))
+func (*keeneticInterface) GetInterfaceViaRciShowInterfaces(interfaceId string) (gokeenrestapimodels.RciShowInterface, error) {
+	var myInterface gokeenrestapimodels.RciShowInterface
+	body, err := Common.ExecuteGetSubPath(fmt.Sprintf("/rci/show/interface/%v", interfaceId))
 	if err != nil {
 		return myInterface, err
 	}
@@ -28,9 +28,9 @@ func (*keeneticInterface) GetInterfaceViaRciShowInterfaces(interfaceId string) (
 	return myInterface, err
 }
 
-func (*keeneticInterface) GetInterfaceViaRciShowScInterfaces(interfaceId string) (models.RciShowScInterface, error) {
-	var myInterface models.RciShowScInterface
-	body, err := ExecuteGetSubPath(fmt.Sprintf("/rci/show/sc/interface/%v", interfaceId))
+func (*keeneticInterface) GetInterfaceViaRciShowScInterfaces(interfaceId string) (gokeenrestapimodels.RciShowScInterface, error) {
+	var myInterface gokeenrestapimodels.RciShowScInterface
+	body, err := Common.ExecuteGetSubPath(fmt.Sprintf("/rci/show/sc/interface/%v", interfaceId))
 	if err != nil {
 		return myInterface, err
 	}
@@ -38,10 +38,10 @@ func (*keeneticInterface) GetInterfaceViaRciShowScInterfaces(interfaceId string)
 	return myInterface, err
 }
 
-func (*keeneticInterface) GetInterfacesViaRciShowInterfaces(interfaceTypes ...string) (map[string]models.RciShowInterface, error) {
-	var interfaces map[string]models.RciShowInterface
+func (*keeneticInterface) GetInterfacesViaRciShowInterfaces(interfaceTypes ...string) (map[string]gokeenrestapimodels.RciShowInterface, error) {
+	var interfaces map[string]gokeenrestapimodels.RciShowInterface
 	err := gokeenspinner.WrapWithSpinner("Fetching interfaces", func() error {
-		body, err := ExecuteGetSubPath("/rci/show/interface")
+		body, err := Common.ExecuteGetSubPath("/rci/show/interface")
 		if err != nil {
 			return err
 		}
@@ -53,7 +53,7 @@ func (*keeneticInterface) GetInterfacesViaRciShowInterfaces(interfaceTypes ...st
 	if len(interfaceTypes) == 0 {
 		return interfaces, nil
 	}
-	realInterfaces := map[string]models.RciShowInterface{}
+	realInterfaces := map[string]gokeenrestapimodels.RciShowInterface{}
 	for k, interfaceDetails := range interfaces {
 		k := k
 		interfaceDetails := interfaceDetails
@@ -67,10 +67,10 @@ func (*keeneticInterface) GetInterfacesViaRciShowInterfaces(interfaceTypes ...st
 	return realInterfaces, nil
 }
 
-func (*keeneticInterface) GetInterfacesViaRciShowScInterfaces(ids ...string) (map[string]models.RciShowScInterface, error) {
-	var interfaces map[string]models.RciShowScInterface
+func (*keeneticInterface) GetInterfacesViaRciShowScInterfaces(ids ...string) (map[string]gokeenrestapimodels.RciShowScInterface, error) {
+	var interfaces map[string]gokeenrestapimodels.RciShowScInterface
 	err := gokeenspinner.WrapWithSpinner("Fetching interfaces", func() error {
-		body, err := ExecuteGetSubPath("/rci/show/sc/interface")
+		body, err := Common.ExecuteGetSubPath("/rci/show/sc/interface")
 		if err != nil {
 			return err
 		}
@@ -82,7 +82,7 @@ func (*keeneticInterface) GetInterfacesViaRciShowScInterfaces(ids ...string) (ma
 	if len(ids) == 0 {
 		return interfaces, nil
 	}
-	realInterfaces := map[string]models.RciShowScInterface{}
+	realInterfaces := map[string]gokeenrestapimodels.RciShowScInterface{}
 	for k, interfaceDetails := range interfaces {
 		if !slices.Contains(ids, k) {
 			continue
@@ -92,7 +92,7 @@ func (*keeneticInterface) GetInterfacesViaRciShowScInterfaces(ids ...string) (ma
 	return realInterfaces, nil
 }
 
-func (*keeneticInterface) PrintInfoAboutInterfaces(interfaces map[string]models.RciShowInterface) {
+func (*keeneticInterface) PrintInfoAboutInterfaces(interfaces map[string]gokeenrestapimodels.RciShowInterface) {
 	for k, interfaceDetails := range interfaces {
 		gokeenlog.Infof("Interface '%v':", color.BlueString(k))
 		gokeenlog.InfoSubStepf("Id: %v", color.CyanString(interfaceDetails.Id))
@@ -127,16 +127,16 @@ func (*keeneticInterface) WaitUntilInterfaceIsUp(interfaceId string) error {
 }
 
 func (*keeneticInterface) UpInterface(interfaceId string) error {
-	var parseSlice []models.ParseRequest
-	parseSlice = append(parseSlice, models.ParseRequest{
+	var parseSlice []gokeenrestapimodels.ParseRequest
+	parseSlice = append(parseSlice, gokeenrestapimodels.ParseRequest{
 		Parse: fmt.Sprintf("interface %v up", interfaceId),
-	}, models.ParseRequest{
+	}, gokeenrestapimodels.ParseRequest{
 		Parse: "system configuration save",
 	})
-	var parseResponse []models.ParseResponse
+	var parseResponse []gokeenrestapimodels.ParseResponse
 	err := gokeenspinner.WrapWithSpinner(fmt.Sprintf("Bringing %v interface up", color.CyanString(interfaceId)), func() error {
 		var executeErr error
-		parseResponse, executeErr = ExecutePostParse(parseSlice...)
+		parseResponse, executeErr = Common.ExecutePostParse(parseSlice...)
 		return executeErr
 	})
 	gokeenlog.PrintParseResponse(parseResponse)
@@ -144,20 +144,20 @@ func (*keeneticInterface) UpInterface(interfaceId string) error {
 }
 
 func (*keeneticInterface) SetGlobalIpInInterface(interfaceId string, global bool) error {
-	var parseSlice []models.ParseRequest
+	var parseSlice []gokeenrestapimodels.ParseRequest
 	val := "ip global auto"
 	if !global {
 		val = "no ip global"
 	}
-	parseSlice = append(parseSlice, models.ParseRequest{
+	parseSlice = append(parseSlice, gokeenrestapimodels.ParseRequest{
 		Parse: fmt.Sprintf("interface %v %v", interfaceId, val),
-	}, models.ParseRequest{
+	}, gokeenrestapimodels.ParseRequest{
 		Parse: "system configuration save",
 	})
-	var parseResponse []models.ParseResponse
+	var parseResponse []gokeenrestapimodels.ParseResponse
 	err := gokeenspinner.WrapWithSpinner(fmt.Sprintf("Changing global IP in %v interface to %v", color.CyanString(interfaceId), color.GreenString("%v", global)), func() error {
 		var executeErr error
-		parseResponse, executeErr = ExecutePostParse(parseSlice...)
+		parseResponse, executeErr = Common.ExecutePostParse(parseSlice...)
 		return executeErr
 	})
 	gokeenlog.PrintParseResponse(parseResponse)

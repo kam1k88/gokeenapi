@@ -9,7 +9,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/noksa/gokeenapi/internal/gokeenspinner"
-	"github.com/noksa/gokeenapi/pkg/models"
+	"github.com/noksa/gokeenapi/pkg/gokeenrestapimodels"
 	"go.uber.org/multierr"
 	"gopkg.in/ini.v1"
 )
@@ -18,8 +18,8 @@ var AwgConf keeneticAwgconf
 
 type keeneticAwgconf struct{}
 
-// ConfigureOrUpdateInterface checks if ACS parameters should be adjusted in the interfaceId
-// Starting from 4.3.6 KeeneticOS automatically adds ACS from AWG conf file when it is imported
+// ConfigureOrUpdateInterface checks if ASC parameters should be adjusted in the interfaceId
+// Starting from 4.3.6 KeeneticOS automatically adds ASC from AWG conf file when it is imported
 func (*keeneticAwgconf) ConfigureOrUpdateInterface(confPath, interfaceId string) error {
 	if confPath == "" {
 		return fmt.Errorf("conf-file flag is required")
@@ -130,8 +130,8 @@ func (*keeneticAwgconf) ConfigureOrUpdateInterface(confPath, interfaceId string)
 		return nil
 	}
 
-	var parseSlice []models.ParseRequest
-	confParse := models.ParseRequest{}
+	var parseSlice []gokeenrestapimodels.ParseRequest
+	confParse := gokeenrestapimodels.ParseRequest{}
 	confParse.Parse = fmt.Sprintf("interface %v wireguard asc %v %v %v %v %v %v %v %v %v",
 		interfaceId,
 		Jcstring,
@@ -144,27 +144,27 @@ func (*keeneticAwgconf) ConfigureOrUpdateInterface(confPath, interfaceId string)
 		H3string,
 		H4string)
 	parseSlice = append(parseSlice, confParse,
-		models.ParseRequest{Parse: "system configuration save"})
+		gokeenrestapimodels.ParseRequest{Parse: "system configuration save"})
 	return gokeenspinner.WrapWithSpinner(fmt.Sprintf("Configuring %v interface with ASC parameters", color.CyanString(interfaceId)), func() error {
-		_, err := ExecutePostParse(parseSlice...)
+		_, err := Common.ExecutePostParse(parseSlice...)
 		return err
 	})
 }
 
-func (*keeneticAwgconf) AddInterface(confFile string, name string) (CreatedInterface, error) {
+func (*keeneticAwgconf) AddInterface(confFile string, name string) (gokeenrestapimodels.CreatedInterface, error) {
 	b, err := os.ReadFile(confFile)
 	if err != nil {
-		return CreatedInterface{}, err
+		return gokeenrestapimodels.CreatedInterface{}, err
 	}
 	if name == "" {
 		name = filepath.Base(confFile)
 	}
 
-	importData := Import{Import: base64.StdEncoding.EncodeToString(b), Name: "", Filename: name}
+	importData := gokeenrestapimodels.Import{Import: base64.StdEncoding.EncodeToString(b), Name: "", Filename: name}
 
-	var createdInterface CreatedInterface
+	var createdInterface gokeenrestapimodels.CreatedInterface
 	err = gokeenspinner.WrapWithSpinner(fmt.Sprintf("Adding interface from the config file"), func() error {
-		response, err := ExecutePostSubPath("/rci/interface/wireguard/import", importData)
+		response, err := Common.ExecutePostSubPath("/rci/interface/wireguard/import", importData)
 		if err != nil {
 			return err
 		}
@@ -177,21 +177,4 @@ func (*keeneticAwgconf) AddInterface(confFile string, name string) (CreatedInter
 		return err
 	})
 	return createdInterface, err
-}
-
-type Import struct {
-	Import   string `json:"import"`
-	Name     string `json:"name"`
-	Filename string `json:"filename"`
-}
-
-type CreatedInterface struct {
-	Intersects string `json:"intersects"`
-	Created    string `json:"created"`
-	Status     []struct {
-		Status  string `json:"status"`
-		Code    string `json:"code"`
-		Ident   string `json:"ident"`
-		Message string `json:"message"`
-	} `json:"status"`
 }

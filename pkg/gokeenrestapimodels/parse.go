@@ -1,4 +1,4 @@
-package models
+package gokeenrestapimodels
 
 type ParseRequest struct {
 	Parse string `json:"parse"`
