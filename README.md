@@ -68,6 +68,7 @@ docker run --rm -ti -v "$(pwd)/config_example.yaml":"/gokeenapi/config.yaml" "${
 #### Binary
 
 ```shell
+# config can be specified via GOKEENAPI_CONFIG environment variable instead of flag
 ./gokeenapi --config my_config.yaml show-interfaces
 ./gokeenapi --config my_config.yaml add-dns-records
 ./gokeenapi --config my_config.yaml delete-dns-records

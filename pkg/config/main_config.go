@@ -41,7 +41,12 @@ type Logs struct {
 
 func LoadConfig(configPath string) error {
 	if configPath == "" {
-		return errors.New("config path is empty. Specify it via --config flag")
+		v, ok := os.LookupEnv("GOKEENAPI_CONFIG")
+		if ok {
+			configPath = v
+		} else {
+			return errors.New("config path is empty. Specify it via --config flag or GOKEENAPI_CONFIG environment variable")
+		}
 	}
 	b, err := os.ReadFile(configPath)
 	if err != nil {
