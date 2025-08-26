@@ -1,33 +1,36 @@
+# Keenetic router settings
 keenetic:
-  # how many routes will be added/deleted per one request to api
-  # default is 50
-  # can't be less than 20
-  routesPerRequest: 50
-  # can be replaced by GOKEENAPI_URL variable or --url flag
+  # URL of the router. Can be IP address or DNS from KeenDNS service (http/https both are supported)
   url: http://192.168.1.1
-  # can be replaced by GOKEENAPI_LOGIN variable or --login flag
+  # Admin login to use
+  # This sensitive data can be stored in GOKEENAPI_KEENETIC_LOGIN environment variable instead
   login: super-login
-  # can be replaced by GOKEENAPI_PASSWORD variable or --password flag
+  # Admin password to use
+  # This sensitive data can be stored in GOKEENAPI_KEENETIC_PASSWORD environment variable instead
   password: super-password
-  # Interface settings to use
-  interface:
-    # Interface ID to use in commands.
-    # Can be fetched by running 'show-interfaces --type Wireguard' command
-    # Can be replaced by GOKEENAPI_INTERFACE variable or --interface-id flag
-    id: "Wireguard0"
-    # Conf file with Wireguard settings
-    # The file is used in confire-awg command to add/update ASC parameters on existing WG connections
-    # Can be replaced by --conf-file flag
-    conf_file: ""
 
-# A lit of bat files to add routes from to the interface
-# Can be replaced by --bat-file flag in add-routes command multiple times
-bat-file:
-  - /path/to/batfile.bat
+# Settings for routes-related commands
+routes:
+    # A list of routes to be added/updated in the router
+    # Existing interface id to add/update routes on it
+  - interfaceId: Wireguard0
+    # A lit of bat files to add routes from to the interface
+    bat-file:
+      - /path/to/batfile.bat
+    # A lit of urls to bat files from which routes should be added to the interface
+    bat-url:
+      - https://iplist.opencck.org/?format=bat&data=cidr4&site=instagram.com
+      - https://iplist.opencck.org/?format=bat&data=cidr4&site=youtube.com
+      - https://iplist.opencck.org/?format=bat&data=cidr4&site=facebook.com
 
-# A lit of urls to bat files from which routes should be added to the interface
-# Can be replaced by --bat-url flag in add-routes command multiple times
-bat-url:
-  - https://iplist.opencck.org/?format=bat&data=cidr4&site=instagram.com
-  - https://iplist.opencck.org/?format=bat&data=cidr4&site=youtube.com
-  - https://iplist.opencck.org/?format=bat&data=cidr4&site=facebook.com
+# Settings for DNS-related commands
+dns:
+  # Settings for DNS records
+  records:
+      # A list of dns records to be added/updated in the router
+      # Every domain can have multiple ip address
+      # Result will be translated in the following keenetic cli command
+      # ip host <domain> <ip-address> (for each specified ip address)
+    - domain: keenetic.local
+      ip:
+        - 192.168.1.1

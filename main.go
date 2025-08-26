@@ -27,7 +27,8 @@ func main() {
 	}
 	cmd.RestoreCursor()
 	if err != nil {
-		gokeenlog.Info(color.RedString("Error occured!"))
+		gokeenlog.Info(color.HiRedString("Error occured!"))
+		gokeenlog.Info(color.RedString(err.Error()))
 		os.Exit(100)
 	}
 }

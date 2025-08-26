@@ -1,39 +1,39 @@
 package cmd
 
 import (
-	"github.com/noksa/gokeenapi/pkg/config"
+	"errors"
+
 	"github.com/noksa/gokeenapi/pkg/gokeenrestapi"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 func newDeleteRoutesCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "delete-routes",
-		Aliases: []string{"deleteroutes"},
+		Aliases: []string{"deleteroutes", "dr"},
 		Short:   "Delete static routes in Keenetic router",
 	}
 
-	cmd.Flags().String("interface-id", "", "Keenetic interface ID to delete static routes on")
-
-	cmd.PreRun = func(cmd *cobra.Command, args []string) {
-		_ = viper.BindPFlag(config.ViperKeeneticInterfaceId, cmd.Flags().Lookup("interface-id"))
-	}
+	var interfaceId string
+	cmd.Flags().StringVar(&interfaceId, "interface-id", "", "Keenetic interface ID to delete static routes on")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		err := gokeenrestapi.Checks.CheckInterfaceId(viper.GetString(config.ViperKeeneticInterfaceId))
+		if interfaceId == "" {
+			return errors.New("--interface-id flag is required")
+		}
+		err := gokeenrestapi.Checks.CheckInterfaceId(interfaceId)
 		if err != nil {
 			return err
 		}
-		err = gokeenrestapi.Checks.CheckInterfaceExists(viper.GetString(config.ViperKeeneticInterfaceId))
+		err = gokeenrestapi.Checks.CheckInterfaceExists(interfaceId)
 		if err != nil {
 			return err
 		}
-		routes, err := gokeenrestapi.Route.GetAllUserRoutesRciIpRoute(viper.GetString(config.ViperKeeneticInterfaceId))
+		routes, err := gokeenrestapi.Ip.GetAllUserRoutesRciIpRoute(interfaceId)
 		if err != nil {
 			return err
 		}
-		return gokeenrestapi.Route.DeleteRoutes(routes)
+		return gokeenrestapi.Ip.DeleteRoutes(routes, interfaceId)
 	}
 	return cmd
 }

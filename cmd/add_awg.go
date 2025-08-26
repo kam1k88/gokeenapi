@@ -6,36 +6,25 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/noksa/gokeenapi/internal/gokeenlog"
-	"github.com/noksa/gokeenapi/pkg/config"
 	"github.com/noksa/gokeenapi/pkg/gokeenrestapi"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 func newAddAwgCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "add-awg",
 		Aliases: []string{"addawg", "aawg"},
-		Short:   "Add AWG connection from config file in Keenetic router",
+		Short:   "Add AWG connection from conf file in Keenetic router",
 	}
-
-	cmd.Flags().String("conf-file", "", "Path to a conf TOML file with WG configuration")
-	var configure bool
-	var up bool
-	var name string
-	cmd.Flags().BoolVar(&configure, "configure", true, "Add ASC parameters to the connection after creating from config file")
-	cmd.Flags().BoolVar(&up, "up", true, "Bring interface up after creating")
+	var name, confFile string
+	cmd.Flags().StringVar(&confFile, "conf-file", "", "Path to a conf file with AWG configuration")
 	cmd.Flags().StringVar(&name, "name", "", "Name for new WG interface, optional")
-	cmd.PreRun = func(cmd *cobra.Command, args []string) {
-		_ = viper.BindPFlag(config.ViperKeeneticInterfaceConfFile, cmd.Flags().Lookup("conf-file"))
-	}
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		confPath := viper.GetString(config.ViperKeeneticInterfaceConfFile)
-		if confPath == "" {
+		if confFile == "" {
 			return fmt.Errorf("conf-file flag is required")
 		}
-		confPath, err := filepath.Abs(confPath)
+		confPath, err := filepath.Abs(confFile)
 		if err != nil {
 			return err
 		}
@@ -49,9 +38,7 @@ func newAddAwgCmd() *cobra.Command {
 			return err
 		}
 		gokeenlog.InfoSubStepf("ID: %v", color.CyanString(createdInterface.Created))
-		if configure {
-			err = gokeenrestapi.AwgConf.ConfigureOrUpdateInterface(confPath, createdInterface.Created)
-		}
+		err = gokeenrestapi.AwgConf.ConfigureOrUpdateInterface(confPath, createdInterface.Created)
 		if err != nil {
 			return err
 		}
@@ -59,13 +46,11 @@ func newAddAwgCmd() *cobra.Command {
 		if err != nil {
 			return err
 		}
-		if up {
-			err = gokeenrestapi.Interface.UpInterface(createdInterface.Created)
-			if err != nil {
-				return err
-			}
-			err = gokeenrestapi.Interface.WaitUntilInterfaceIsUp(createdInterface.Created)
+		err = gokeenrestapi.Interface.UpInterface(createdInterface.Created)
+		if err != nil {
+			return err
 		}
+		err = gokeenrestapi.Interface.WaitUntilInterfaceIsUp(createdInterface.Created)
 		return err
 	}
 	return cmd

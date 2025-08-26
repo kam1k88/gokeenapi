@@ -5,7 +5,6 @@ import (
 
 	"github.com/noksa/gokeenapi/pkg/config"
 	"github.com/noksa/gokeenapi/pkg/gokeenrestapimodels"
-	"github.com/spf13/viper"
 )
 
 func Info(msg string) {
@@ -13,14 +12,6 @@ func Info(msg string) {
 }
 
 func Infof(msg string, args ...any) {
-	s := fmt.Sprintf(msg, args...)
-	fmt.Printf("%v\n", s)
-}
-
-func Debugf(msg string, args ...any) {
-	if !viper.GetBool(config.ViperDebug) {
-		return
-	}
 	s := fmt.Sprintf(msg, args...)
 	fmt.Printf("%v\n", s)
 }
@@ -35,7 +26,7 @@ func InfoSubStep(msg string) {
 }
 
 func PrintParseResponse(parseResponse []gokeenrestapimodels.ParseResponse) {
-	if !viper.GetBool(config.ViperDebug) {
+	if !config.Cfg.Logs.Debug {
 		return
 	}
 	if len(parseResponse) == 0 {

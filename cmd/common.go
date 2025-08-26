@@ -7,20 +7,19 @@ import (
 	"runtime"
 
 	"github.com/noksa/gokeenapi/pkg/config"
-	"github.com/spf13/viper"
 	"go.uber.org/multierr"
 )
 
 func checkRequiredFields() error {
 	var mErr error
-	if viper.GetString(config.ViperKeeneticUrl) == "" {
-		mErr = multierr.Append(mErr, errors.New("please specify a keenetic url via flag/field/variable"))
+	if config.Cfg.Keenetic.URL == "" {
+		mErr = multierr.Append(mErr, errors.New("please specify a keenetic url via keenetic.url field in yaml config"))
 	}
-	if viper.GetString(config.ViperKeeneticLogin) == "" {
-		mErr = multierr.Append(mErr, errors.New("please specify a keenetic login via flag/field/variable"))
+	if config.Cfg.Keenetic.Login == "" {
+		mErr = multierr.Append(mErr, errors.New("please specify a keenetic login via keenetic.login field in yaml config"))
 	}
-	if viper.GetString(config.ViperKeeneticPassword) == "" {
-		mErr = multierr.Append(mErr, errors.New("please specify a keenetic password via flag/field/variable"))
+	if config.Cfg.Keenetic.Password == "" {
+		mErr = multierr.Append(mErr, errors.New("please specify a keenetic password via keenetic.password field in yaml config"))
 	}
 
 	return mErr

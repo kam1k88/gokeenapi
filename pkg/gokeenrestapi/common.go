@@ -17,7 +17,6 @@ import (
 	"github.com/noksa/gokeenapi/pkg/config"
 	"github.com/noksa/gokeenapi/pkg/gokeencache"
 	"github.com/noksa/gokeenapi/pkg/gokeenrestapimodels"
-	"github.com/spf13/viper"
 	"go.uber.org/multierr"
 )
 
@@ -45,7 +44,7 @@ func (c *keeneticCommon) Auth() error {
 				//secondRequest.Header.Set("Cookie", cookie)
 
 				md5Hash := md5.New()
-				_, err = fmt.Fprintf(md5Hash, "%v:%v:%v", viper.GetString(config.ViperKeeneticLogin), realm, viper.GetString(config.ViperKeeneticPassword))
+				_, err = fmt.Fprintf(md5Hash, "%v:%v:%v", config.Cfg.Keenetic.Login, realm, config.Cfg.Keenetic.Password)
 				if err != nil {
 					return err
 				}
@@ -62,7 +61,7 @@ func (c *keeneticCommon) Auth() error {
 					Login    string `json:"login"`
 					Password string `json:"password"`
 				}{
-					Login:    viper.GetString(config.ViperKeeneticLogin),
+					Login:    config.Cfg.Keenetic.Login,
 					Password: sha256HashStr,
 				})
 				response, err = secondRequest.Post("/auth")
@@ -105,12 +104,7 @@ func (c *keeneticCommon) ExecutePostParse(parse ...gokeenrestapimodels.ParseRequ
 	var mErr error
 	for len(parseCopy) > 0 {
 		request := c.GetApiClient().R()
-		maxParse := viper.GetInt("keenetic.routesPerRequest")
-		if maxParse == 0 {
-			maxParse = 50
-		} else if maxParse < 20 {
-			maxParse = 20
-		}
+		maxParse := 50
 		currentLen := len(parseCopy)
 		if currentLen < maxParse {
 			maxParse = currentLen
@@ -172,6 +166,19 @@ func (*keeneticCommon) GetApiClient() *resty.Client {
 	}
 	restyClient = resty.New()
 	restyClient.SetDisableWarn(true)
-	restyClient.SetBaseURL(viper.GetString(config.ViperKeeneticUrl))
+	restyClient.SetBaseURL(config.Cfg.Keenetic.URL)
 	return restyClient
+}
+
+func (c *keeneticCommon) ShowRunningConfig() (gokeenrestapimodels.RunningConfig, error) {
+	var runningConfig gokeenrestapimodels.RunningConfig
+	err := gokeenspinner.WrapWithSpinner(fmt.Sprintf("Fetching %v", color.CyanString("running-config")), func() error {
+		b, err := c.ExecuteGetSubPath("/rci/show/running-config")
+		if err != nil {
+			return err
+		}
+		err = json.Unmarshal(b, &runningConfig)
+		return err
+	})
+	return runningConfig, err
 }
