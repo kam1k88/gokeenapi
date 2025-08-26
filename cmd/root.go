@@ -37,7 +37,7 @@ func NewRootCmd() *cobra.Command {
 		newAddRoutesCmd(),
 		newDeleteRoutesCmd(),
 		newShowInterfacesCmd(),
-		newConfigureAwgCmd(),
+		newUpdateAwgCmd(),
 		newAddAwgCmd(),
 		newAddDnsRecordsCmd(),
 		newDeleteDnsRecordsCmd(),

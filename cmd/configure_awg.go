@@ -7,11 +7,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newConfigureAwgCmd() *cobra.Command {
+func newUpdateAwgCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "configure-awg",
-		Aliases: []string{"configureawg", "cawg"},
-		Short:   "Configure AWG connection to add(update) ASC parameters in it in Keenetic router",
+		Use:     "update-awg",
+		Aliases: []string{"updateawg", "uawg"},
+		Short:   "Update AWG connection to add(update) ASC parameters in it in Keenetic router",
 	}
 	var confFile, interfaceId string
 	cmd.Flags().StringVar(&confFile, "conf-file", "", "Path to a conf file with AWG configuration")
