@@ -52,7 +52,7 @@ The easiest way to start using `gokeenapi` is through docker containers or using
 
 ### Docker
 
-It is recommended to use `noksa/gokeenapi:stable` image
+It is recommended to use `noksa/gokeenapi:stable` image or build it yourself using `Dockerfile`
 
 * Check all existing commands
 ```shell
@@ -64,8 +64,11 @@ docker run --rm -ti "${GOKEENAPI_IMAGE}" --help
 * Show interfaces on the router
 ```shell
 export GOKEENAPI_IMAGE="noksa/gokeenapi:stable"
+docker pull "${GOKEENAPI_IMAGE}"
 docker run --rm -ti -v "$(pwd)/config_example.yaml":"/gokeenapi/config.yaml" "${GOKEENAPI_IMAGE}" show-interfaces --config "/gokeenapi/config.yaml"
 ```
+
+---
 
 ### Commands
 
