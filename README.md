@@ -33,6 +33,8 @@ If you don't like or don't know how to use CLI programs, consider using the GUI 
 
 `gokeenapi` should be configured using `yaml` config file ([example](https://github.com/Noksa/gokeenapi/blob/main/config_example.yaml))
 
+Use `--config <path>` flag to pass config file to the utility
+
 ---
 
 ### Videos

@@ -9,28 +9,33 @@ keenetic:
   # This sensitive data can be stored in GOKEENAPI_KEENETIC_PASSWORD environment variable instead
   password: super-password
 
-# Settings for routes-related commands
+# A list of routes to be added/updated/deleted in the router
 routes:
-    # A list of routes to be added/updated in the router
     # Existing interface id to add/update routes on it
   - interfaceId: Wireguard0
-    # A lit of bat files to add routes from to the interface
+    # A list of bat files to add routes from to the interfaceId
     bat-file:
       - /path/to/batfile.bat
-    # A lit of urls to bat files from which routes should be added to the interface
+      - /path/to/batfile2.bat
+    # A list of urls with bat files from which routes should be added to the interfaceId
     bat-url:
       - https://iplist.opencck.org/?format=bat&data=cidr4&site=instagram.com
       - https://iplist.opencck.org/?format=bat&data=cidr4&site=youtube.com
       - https://iplist.opencck.org/?format=bat&data=cidr4&site=facebook.com
+  - interfaceId: Wireguard1
+    bat-file:
+      - /path/to/batfile-second-interface.bat
+    bat-url: []
 
-# Settings for DNS-related commands
+# Settings for DNS commands
 dns:
   # Settings for DNS records
   records:
-      # A list of dns records to be added/updated in the router
+      # A list of dns records to be added/updated/deleted in the router
       # Every domain can have multiple ip address
       # Result will be translated in the following keenetic cli command
       # ip host <domain> <ip-address> (for each specified ip address)
     - domain: keenetic.local
       ip:
         - 192.168.1.1
+        - 192.168.2.1

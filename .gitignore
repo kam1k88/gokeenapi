@@ -1,7 +1,7 @@
 /gokeenapi
 /gokeenapi.exe
+/gokeenapiw
 .idea
-.gokeenapienv
 config.yaml
 config_*.yaml
 binaries
