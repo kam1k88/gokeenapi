@@ -17,7 +17,7 @@ func newDeleteDnsRecordsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "delete-dns-records",
 		Aliases: []string{"deletednsrecords", "ddr"},
-		Short:   "Add static dns records in Keenetic router",
+		Short:   "Delete static dns records in Keenetic router",
 	}
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
