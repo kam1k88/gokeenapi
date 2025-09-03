@@ -24,7 +24,7 @@ func (*checks) CheckInterfaceId(interfaceId string) error {
 }
 
 func (*checks) CheckInterfaceExists(interfaceId string) error {
-	interfaces, err := Interface.GetInterfacesViaRciShowInterfaces()
+	interfaces, err := Interface.GetInterfacesViaRciShowInterfaces(true)
 	if err != nil {
 		return err
 	}
@@ -42,7 +42,7 @@ func (*checks) CheckInterfaceExists(interfaceId string) error {
 }
 
 func (*checks) CheckAWGInterfaceExistsFromConfFile(confPath string) error {
-	interfaces, err := Interface.GetInterfacesViaRciShowInterfaces("Wireguard")
+	interfaces, err := Interface.GetInterfacesViaRciShowInterfaces(true, "Wireguard")
 	if err != nil {
 		return err
 	}

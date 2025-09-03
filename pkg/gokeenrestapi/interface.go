@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/fatih/color"
+	"github.com/noksa/gokeenapi/internal/gokeencache"
 	"github.com/noksa/gokeenapi/internal/gokeenlog"
 	"github.com/noksa/gokeenapi/internal/gokeenspinner"
 	"github.com/noksa/gokeenapi/pkg/gokeenrestapimodels"
@@ -38,25 +39,29 @@ func (*keeneticInterface) GetInterfaceViaRciShowScInterfaces(interfaceId string)
 	return myInterface, err
 }
 
-func (*keeneticInterface) GetInterfacesViaRciShowInterfaces(interfaceTypes ...string) (map[string]gokeenrestapimodels.RciShowInterface, error) {
+func (*keeneticInterface) GetInterfacesViaRciShowInterfaces(useCache bool, interfaceTypes ...string) (map[string]gokeenrestapimodels.RciShowInterface, error) {
 	var interfaces map[string]gokeenrestapimodels.RciShowInterface
-	err := gokeenspinner.WrapWithSpinner("Fetching interfaces", func() error {
-		body, err := Common.ExecuteGetSubPath("/rci/show/interface")
+	if useCache {
+		interfaces = gokeencache.GetRciShowInterfaces()
+	}
+	if interfaces == nil {
+		err := gokeenspinner.WrapWithSpinner("Fetching interfaces", func() error {
+			body, err := Common.ExecuteGetSubPath("/rci/show/interface")
+			if err != nil {
+				return err
+			}
+			return json.Unmarshal(body, &interfaces)
+		})
 		if err != nil {
-			return err
+			return interfaces, err
 		}
-		return json.Unmarshal(body, &interfaces)
-	})
-	if err != nil {
-		return interfaces, err
+		gokeencache.SetRciShowInterfaces(interfaces)
 	}
 	if len(interfaceTypes) == 0 {
 		return interfaces, nil
 	}
 	realInterfaces := map[string]gokeenrestapimodels.RciShowInterface{}
 	for k, interfaceDetails := range interfaces {
-		k := k
-		interfaceDetails := interfaceDetails
 		for _, v := range interfaceTypes {
 			v := v
 			if strings.EqualFold(interfaceDetails.Type, v) {

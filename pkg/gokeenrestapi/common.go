@@ -12,10 +12,10 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/go-resty/resty/v2"
+	"github.com/noksa/gokeenapi/internal/gokeencache"
 	"github.com/noksa/gokeenapi/internal/gokeenlog"
 	"github.com/noksa/gokeenapi/internal/gokeenspinner"
 	"github.com/noksa/gokeenapi/pkg/config"
-	"github.com/noksa/gokeenapi/pkg/gokeencache"
 	"github.com/noksa/gokeenapi/pkg/gokeenrestapimodels"
 	"go.uber.org/multierr"
 )

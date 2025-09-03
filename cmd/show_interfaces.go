@@ -15,7 +15,7 @@ func newShowInterfacesCmd() *cobra.Command {
 	var interfaceType []string
 	cmd.Flags().StringSliceVar(&interfaceType, "type", []string{}, "Show information about interfaces with specified type. Can be specified multiple times")
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		interfaces, err := gokeenrestapi.Interface.GetInterfacesViaRciShowInterfaces(interfaceType...)
+		interfaces, err := gokeenrestapi.Interface.GetInterfacesViaRciShowInterfaces(true, interfaceType...)
 		if err != nil {
 			return err
 		}
