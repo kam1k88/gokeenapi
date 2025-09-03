@@ -41,7 +41,6 @@ func newAddRoutesCmd() *cobra.Command {
 					return err
 				}
 			}
-			return nil
 		}
 		return nil
 	}
