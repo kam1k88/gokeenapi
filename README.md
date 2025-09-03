@@ -1,7 +1,7 @@
 # gokeenapi 🚀
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/404e89cc-4675-42c4-ae93-4a0955b06348" alt="gokeenapi-video" width="100%">
+  <video src="https://github.com/user-attachments/assets/404e89cc-4675-42c4-ae93-4a0955b06348" width="100%"></video>
 </p>
 
 **A powerful and easy-to-use command-line utility to manage your Keenetic router via REST API.**
