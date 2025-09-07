@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"strings"
+
 	"github.com/noksa/gokeenapi/internal/gokeenlog"
 	"github.com/noksa/gokeenapi/internal/gokeenversion"
 	"github.com/noksa/gokeenapi/pkg/config"
@@ -18,6 +20,13 @@ func NewRootCmd() *cobra.Command {
 	rootCmd.PersistentFlags().Bool("debug", false, "Enable debug mode and logging")
 	rootCmd.PersistentFlags().StringVar(&configFile, "config", "", "Path to YAML config file (required)")
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		// completion and help commands should run without any checks and init
+		commandsToSkip := []string{"completion", "help"}
+		for _, commandToSkip := range commandsToSkip {
+			if strings.Contains(cmd.CommandPath(), commandToSkip) {
+				return nil
+			}
+		}
 		err := config.LoadConfig(configFile)
 		if err != nil {
 			return err

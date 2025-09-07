@@ -4,12 +4,19 @@ import (
 	"errors"
 	"os"
 
+	"github.com/noksa/gokeenapi/pkg/gokeenrestapimodels"
 	"gopkg.in/yaml.v3"
 )
 
 var (
 	Cfg = GokeenapiConfig{}
 )
+
+type Runtime struct {
+	RouterInfo struct {
+		Version gokeenrestapimodels.Version `yaml:"-"`
+	} `yaml:"-"`
+}
 
 type GokeenapiConfig struct {
 	Keenetic Keenetic `yaml:"keenetic"`

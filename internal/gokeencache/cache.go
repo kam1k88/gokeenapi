@@ -1,26 +1,32 @@
 package gokeencache
 
 import (
+	"github.com/noksa/gokeenapi/pkg/config"
 	"github.com/noksa/gokeenapi/pkg/gokeenrestapimodels"
 	"github.com/patrickmn/go-cache"
 )
 
 const (
 	rciShowInterfaces = "rci_show_interfaces"
-	version           = "version"
+	runtimeConfig     = "runtime_config"
 )
 
 var (
 	c = cache.New(cache.NoExpiration, cache.NoExpiration)
 )
 
-func SetVersion(v gokeenrestapimodels.Version) {
-	c.Set(version, v, cache.NoExpiration)
+func UpdateRuntimeConfig(f func(runtime *config.Runtime)) {
+	cfg := GetRuntimeConfig()
+	f(cfg)
+	c.Set(runtimeConfig, cfg, cache.NoExpiration)
 }
 
-func GetVersion() gokeenrestapimodels.Version {
-	v, _ := c.Get(version)
-	return v.(gokeenrestapimodels.Version)
+func GetRuntimeConfig() *config.Runtime {
+	cfg, ok := c.Get(runtimeConfig)
+	if ok {
+		return cfg.(*config.Runtime)
+	}
+	return &config.Runtime{}
 }
 
 func SetRciShowInterfaces(m map[string]gokeenrestapimodels.RciShowInterface) {

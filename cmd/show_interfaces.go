@@ -8,7 +8,7 @@ import (
 func newShowInterfacesCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "show-interfaces",
-		Aliases: []string{"showinterfaces", "showifaces", "si"},
+		Aliases: []string{"showinterfaces", "si", "showinterface", "show-interface"},
 		Short:   "Print common information about interfaces in Keenetic router",
 	}
 
