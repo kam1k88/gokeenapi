@@ -50,6 +50,7 @@ func NewRootCmd() *cobra.Command {
 		newAddAwgCmd(),
 		newAddDnsRecordsCmd(),
 		newDeleteDnsRecordsCmd(),
+		newExecCmd(),
 	)
 	return rootCmd
 }

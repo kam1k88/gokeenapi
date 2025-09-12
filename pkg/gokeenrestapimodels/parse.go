@@ -14,6 +14,7 @@ type Status struct {
 	Message string `json:"message"`
 }
 type Parse struct {
-	Prompt string   `json:"prompt"`
-	Status []Status `json:"status"`
+	Prompt      string   `json:"prompt"`
+	DynamicData string   `json:"-"`
+	Status      []Status `json:"status"`
 }
