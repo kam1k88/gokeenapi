@@ -126,7 +126,7 @@ func (c *keeneticCommon) writeAuthCookie(cookie string) error {
 }
 
 func (c *keeneticCommon) Auth() error {
-	err := gokeenspinner.WrapWithSpinner("Authorizing in Keenetic", func() error {
+	err := gokeenspinner.WrapWithSpinner(fmt.Sprintf("Authorizing in %v", color.CyanString("Keenetic")), func() error {
 		response, err := c.GetApiClient().R().Get("/auth")
 		var mErr error
 		mErr = multierr.Append(mErr, err)
@@ -187,8 +187,8 @@ func (c *keeneticCommon) Auth() error {
 	if err != nil {
 		return err
 	}
-	gokeenlog.InfoSubStepf("Router: %v", color.CyanString(version.Model))
-	gokeenlog.InfoSubStepf("OS version: %v", color.CyanString(version.Title))
+	gokeenlog.InfoSubStepf("%v: %v", color.MagentaString("Router"), color.CyanString(version.Model))
+	gokeenlog.InfoSubStepf("%v: %v", color.MagentaString("OS version"), color.CyanString(version.Title))
 	gokeencache.UpdateRuntimeConfig(func(runtime *config.Runtime) {
 		runtime.RouterInfo.Version = version
 	})

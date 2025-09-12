@@ -45,7 +45,7 @@ func (*keeneticInterface) GetInterfacesViaRciShowInterfaces(useCache bool, inter
 		interfaces = gokeencache.GetRciShowInterfaces()
 	}
 	if interfaces == nil {
-		err := gokeenspinner.WrapWithSpinner("Fetching interfaces", func() error {
+		err := gokeenspinner.WrapWithSpinner(fmt.Sprintf("Fetching %v", color.CyanString("interfaces")), func() error {
 			body, err := Common.ExecuteGetSubPath("/rci/show/interface")
 			if err != nil {
 				return err
@@ -74,7 +74,7 @@ func (*keeneticInterface) GetInterfacesViaRciShowInterfaces(useCache bool, inter
 
 func (*keeneticInterface) GetInterfacesViaRciShowScInterfaces(ids ...string) (map[string]gokeenrestapimodels.RciShowScInterface, error) {
 	var interfaces map[string]gokeenrestapimodels.RciShowScInterface
-	err := gokeenspinner.WrapWithSpinner("Fetching interfaces", func() error {
+	err := gokeenspinner.WrapWithSpinner(fmt.Sprintf("Fetching %v", color.CyanString("interfaces")), func() error {
 		body, err := Common.ExecuteGetSubPath("/rci/show/sc/interface")
 		if err != nil {
 			return err

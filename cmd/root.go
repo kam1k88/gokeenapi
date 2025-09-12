@@ -3,6 +3,7 @@ package cmd
 import (
 	"strings"
 
+	"github.com/fatih/color"
 	"github.com/noksa/gokeenapi/internal/gokeenlog"
 	"github.com/noksa/gokeenapi/internal/gokeenversion"
 	"github.com/noksa/gokeenapi/pkg/config"
@@ -35,10 +36,10 @@ func NewRootCmd() *cobra.Command {
 		if err != nil {
 			return err
 		}
-		gokeenlog.Infof("Version: %v, BuildDate: %v", gokeenversion.Version(), gokeenversion.BuildDate())
-		gokeenlog.Info("Configuration loaded:")
-		gokeenlog.InfoSubStepf("Keenetic url: %v", config.Cfg.Keenetic.URL)
-		gokeenlog.InfoSubStepf("Config: %v", configFile)
+		gokeenlog.Infof("🚀  %v: %v, %v: %v", color.MagentaString("Version"), color.CyanString(gokeenversion.Version()), color.MagentaString("Build date"), color.CyanString(gokeenversion.BuildDate()))
+		gokeenlog.Info("🏗️  Configuration loaded:")
+		gokeenlog.InfoSubStepf("%v: %v", color.MagentaString("Keenetic URL"), config.Cfg.Keenetic.URL)
+		gokeenlog.InfoSubStepf("%v: %v", color.MagentaString("Config"), color.CyanString(configFile))
 		return gokeenrestapi.Common.Auth()
 	}
 
