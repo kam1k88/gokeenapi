@@ -22,9 +22,12 @@ RUN --mount=type=cache,id=golang,target=/go/pkg <<eot
 eot
 
 FROM alpine:3.21 as final
-WORKDIR /gokeenapi
-ENV PATH="${PATH}:/gokeenapi"
+WORKDIR /opt/gokeenapi
 COPY --from=builder /workspace/gokeenapi ./gokeenapi
+ENV PATH="${PATH}:/opt/gokeenapi"
+ENV GOKEENAPI_INSIDE_DOCKER=true
+RUN mkdir -p /etc/gokeenapi && echo "{}" > /etc/gokeenapi/.gokeenapi
+VOLUME [ "/etc/gokeenapi" ]
 ENTRYPOINT [ "gokeenapi" ]
 CMD [ "--help" ]
 

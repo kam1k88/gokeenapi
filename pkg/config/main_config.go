@@ -20,6 +20,7 @@ type Runtime struct {
 
 type GokeenapiConfig struct {
 	Keenetic Keenetic `yaml:"keenetic"`
+	DataDir  string   `yaml:"dataDir,omitempty"`
 	Routes   []Route  `yaml:"routes"`
 	DNS      DNS      `yaml:"dns"`
 	Logs     Logs     `yaml:"logs,omitempty"`
@@ -71,6 +72,10 @@ func LoadConfig(configPath string) error {
 	v, ok = os.LookupEnv("GOKEENAPI_KEENETIC_PASSWORD")
 	if ok {
 		Cfg.Keenetic.Password = v
+	}
+	_, ok = os.LookupEnv("GOKEENAPI_INSIDE_DOCKER")
+	if ok {
+		Cfg.DataDir = "/etc/gokeenapi"
 	}
 	return nil
 }
