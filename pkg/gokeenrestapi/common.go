@@ -187,8 +187,8 @@ func (c *keeneticCommon) Auth() error {
 	if err != nil {
 		return err
 	}
-	gokeenlog.InfoSubStepf("%v: %v", color.MagentaString("Router"), color.CyanString(version.Model))
-	gokeenlog.InfoSubStepf("%v: %v", color.MagentaString("OS version"), color.CyanString(version.Title))
+	gokeenlog.InfoSubStepf("%v: %v", color.BlueString("Router"), color.CyanString(version.Model))
+	gokeenlog.InfoSubStepf("%v: %v", color.BlueString("OS version"), color.CyanString(version.Title))
 	gokeencache.UpdateRuntimeConfig(func(runtime *config.Runtime) {
 		runtime.RouterInfo.Version = version
 	})

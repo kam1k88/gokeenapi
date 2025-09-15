@@ -44,7 +44,7 @@ func (*keeneticIp) GetAllUserRoutesRciIpRoute(keeneticInterface string) ([]gokee
 			realRoutes = append(realRoutes, route)
 		}
 	}
-	gokeenlog.InfoSubStepf("Found %v static routes for %v interface", color.MagentaString("%v", len(realRoutes)), keeneticInterface)
+	gokeenlog.InfoSubStepf("Found %v static routes for %v interface", color.BlueString("%v", len(realRoutes)), keeneticInterface)
 	return realRoutes, err
 }
 
@@ -69,7 +69,7 @@ func (*keeneticIp) DeleteRoutes(routes []gokeenrestapimodels.RciIpRoute, interfa
 		parse.Parse = fmt.Sprintf("no ip route %v %v", ip, interfaceId)
 		parseSlice = append(parseSlice, parse)
 	}
-	return gokeenspinner.WrapWithSpinner(fmt.Sprintf("Deleting %v static routes with %v interface", color.MagentaString("%v", len(parseSlice)), interfaceId), func() error {
+	return gokeenspinner.WrapWithSpinner(fmt.Sprintf("Deleting %v static routes with %v interface", color.BlueString("%v", len(parseSlice)), interfaceId), func() error {
 		_, err := Common.ExecutePostParse(parseSlice...)
 		return err
 	})
@@ -127,7 +127,7 @@ func (*keeneticIp) AddRoutesFromBatFile(batFile string, interfaceId string) erro
 		parseSlice = append(parseSlice, gokeenrestapimodels.ParseRequest{Parse: fmt.Sprintf("ip route %v %v %v auto", ip, mask, interfaceId)})
 	}
 	var parseResponse []gokeenrestapimodels.ParseResponse
-	mErr = multierr.Append(mErr, gokeenspinner.WrapWithSpinner(fmt.Sprintf("Adding %v static routes from %v file to %v interface", color.MagentaString("%v", len(parseSlice)), color.CyanString(batFile), color.BlueString(interfaceId)), func() error {
+	mErr = multierr.Append(mErr, gokeenspinner.WrapWithSpinner(fmt.Sprintf("Adding %v static routes from %v file to %v interface", color.BlueString("%v", len(parseSlice)), color.CyanString(batFile), color.BlueString(interfaceId)), func() error {
 		var executeErr error
 		parseResponse, executeErr = Common.ExecutePostParse(parseSlice...)
 		return executeErr
@@ -170,7 +170,7 @@ func (*keeneticIp) AddRoutesFromBatUrl(url string, interfaceId string) error {
 		parseSlice = append(parseSlice, gokeenrestapimodels.ParseRequest{Parse: fmt.Sprintf("ip route %v %v %v auto", ip, mask, interfaceId)})
 	}
 	var parseResponse []gokeenrestapimodels.ParseResponse
-	mErr = multierr.Append(mErr, gokeenspinner.WrapWithSpinner(fmt.Sprintf("Adding %v static routes to %v interface", color.MagentaString("%v", len(parseSlice)), color.BlueString(interfaceId)), func() error {
+	mErr = multierr.Append(mErr, gokeenspinner.WrapWithSpinner(fmt.Sprintf("Adding %v static routes to %v interface", color.BlueString("%v", len(parseSlice)), color.BlueString(interfaceId)), func() error {
 		var executeErr error
 		parseResponse, executeErr = Common.ExecutePostParse(parseSlice...)
 		return executeErr

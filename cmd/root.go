@@ -36,10 +36,10 @@ func NewRootCmd() *cobra.Command {
 		if err != nil {
 			return err
 		}
-		gokeenlog.Infof("🚀  %v: %v, %v: %v", color.MagentaString("Version"), color.CyanString(gokeenversion.Version()), color.MagentaString("Build date"), color.CyanString(gokeenversion.BuildDate()))
+		gokeenlog.Infof("🚀  %v: %v, %v: %v", color.BlueString("Version"), color.CyanString(gokeenversion.Version()), color.BlueString("Build date"), color.CyanString(gokeenversion.BuildDate()))
 		gokeenlog.Info("🏗️  Configuration loaded:")
-		gokeenlog.InfoSubStepf("%v: %v", color.MagentaString("Keenetic URL"), config.Cfg.Keenetic.URL)
-		gokeenlog.InfoSubStepf("%v: %v", color.MagentaString("Config"), color.CyanString(configFile))
+		gokeenlog.InfoSubStepf("%v: %v", color.BlueString("Keenetic URL"), config.Cfg.Keenetic.URL)
+		gokeenlog.InfoSubStepf("%v: %v", color.BlueString("Config"), color.CyanString(configFile))
 		return gokeenrestapi.Common.Auth()
 	}
 
