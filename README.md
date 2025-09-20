@@ -1,57 +1,95 @@
-# gokeenapi 🚀
+<div align="center">
+
+# 🚀 gokeenapi
+
+**Automate your Keenetic router management with ease**
 
 <p align="center">
   <video src="https://github.com/user-attachments/assets/404e89cc-4675-42c4-ae93-4a0955b06348" width="100%"></video>
 </p>
 
-**A powerful and easy-to-use command-line utility to manage your Keenetic router via REST API.**
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Docker Pulls](https://img.shields.io/docker/pulls/noksa/gokeenapi)](https://hub.docker.com/r/noksa/gokeenapi)
+[![GitHub release](https://img.shields.io/github/release/Noksa/gokeenapi.svg)](https://github.com/Noksa/gokeenapi/releases)
 
-Tired of clicking through web interfaces? `gokeenapi` lets you automate common networking tasks, saving you time and effort.
+*Tired of clicking through web interfaces? Automate your Keenetic router management with simple CLI commands.*
 
----
+[🚀 Quick Start](#-quick-start) • [📖 Documentation](#-commands) • [🎨 GUI Version](https://github.com/Noksa/gokeenapiui) • [🤝 Contributing](#-contributing)
 
-### ✨ Why use gokeenapi?
-
-*   **💻 Automate Everything:** Manage routes, DNS records, and WireGuard connections with simple commands.
-*   **⚙️ No Router Configuration:** No complex setup is needed on your router. Just provide the address in a `yaml` config file.
-*   **🌐 LAN or Internet:** Works seamlessly whether you're on the same network as your router or accessing it from the internet via KeenDNS.
-*   **🎯 Precise Control:** Unlike the web interface, `gokeenapi` allows you to delete static routes for a *specific* interface without affecting others.
+</div>
 
 ---
 
-###  GUI Version Available! 🎨
+## ✨ Why Choose gokeenapi?
 
-Not a fan of the command line? No problem! A user-friendly GUI version of `gokeenapi` is available [here](https://github.com/Noksa/gokeenapiui).
+<table>
+<tr>
+<td width="50%">
+
+### 💻 **Automate Everything**
+Manage routes, DNS records, and WireGuard connections with simple commands
+
+### ⚙️ **Zero Router Setup**
+No complex configuration needed on your router - just provide the address
+
+</td>
+<td width="50%">
+
+### 🌐 **Works Anywhere**
+LAN or Internet access via KeenDNS - your choice
+
+### 🎯 **Precise Control**
+Delete static routes for specific interfaces without affecting others
+
+</td>
+</tr>
+</table>
 
 ---
 
-### 🚀 Getting Started
+## 🎨 Prefer a GUI?
+
+Not a command-line person? We've got you covered! Check out our user-friendly GUI version:
+
+<div align="center">
+
+[![GUI Version](https://img.shields.io/badge/🎨_GUI_Version-Available-blue?style=for-the-badge)](https://github.com/Noksa/gokeenapiui)
+
+</div>
+
+---
+
+## 🚀 Quick Start
 
 The easiest way to get started is by using Docker or by downloading the latest release.
 
-#### Docker (Recommended)
+### 🐳 Docker (Recommended)
 
 Using Docker is the recommended way to run `gokeenapi`.
 
-1.  **Pull the Docker image:**
-    ```shell
-    export GOKEENAPI_IMAGE="noksa/gokeenapi:stable"
-    docker pull "${GOKEENAPI_IMAGE}"
-    ```
+```bash
+# Pull the Docker image
+export GOKEENAPI_IMAGE="noksa/gokeenapi:stable"
+docker pull "${GOKEENAPI_IMAGE}"
 
-2.  **Run a command:**
-    ```shell
-    docker run --rm -ti -v "$(pwd)/config_example.yaml":/gokeenapi/config.yaml \
-      "${GOKEENAPI_IMAGE}" show-interfaces --config /gokeenapi/config.yaml
-    ```
+# Run a command
+docker run --rm -ti -v "$(pwd)/config_example.yaml":/gokeenapi/config.yaml \
+  "${GOKEENAPI_IMAGE}" show-interfaces --config /gokeenapi/config.yaml
+```
 
-#### Latest Release
+### 📦 Latest Release
 
-You can find the latest release [here](https://github.com/Noksa/gokeenapi/releases).
+Download the latest release for your platform:
+
+<div align="center">
+
+[![Download Latest](https://img.shields.io/badge/📦_Download-Latest_Release-green?style=for-the-badge)](https://github.com/Noksa/gokeenapi/releases)
+
+</div>
 
 ---
 
-### 🔧 Configuration
+## ⚙️ Configuration
 
 `gokeenapi` is configured using a `yaml` file. You can find an example [here](https://github.com/Noksa/gokeenapi/blob/main/config_example.yaml).
 
@@ -59,7 +97,7 @@ To use your configuration file, pass the `--config <path>` flag with your comman
 
 ---
 
-### 🎬 Video Demos
+## 🎬 Video Demos
 
 Check out these video demonstrations (in Russian) to see `gokeenapi` in action:
 
