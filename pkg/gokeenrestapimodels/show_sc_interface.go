@@ -1,26 +1,10 @@
 package gokeenrestapimodels
 
-type SecurityLevel struct {
-	Public bool `json:"public"`
-}
 type Address struct {
 	Address string `json:"address"`
-	Mask    string `json:"mask"`
-}
-type NameServer struct {
-	NameServer string `json:"name-server"`
-}
-type AdjustMss struct {
-	Pmtu bool `json:"pmtu"`
-}
-type TCP struct {
-	AdjustMss AdjustMss `json:"adjust-mss"`
 }
 type IP struct {
-	Address    Address      `json:"address"`
-	Mtu        string       `json:"mtu"`
-	NameServer []NameServer `json:"name-server"`
-	TCP        TCP          `json:"tcp"`
+	Address Address `json:"address"`
 }
 type Asc struct {
 	Jc   string `json:"jc"`
@@ -45,7 +29,7 @@ type AllowIps struct {
 }
 type Peer struct {
 	Key               string            `json:"key"`
-	Comment           string            `json:"comment"`
+	Comment           string            `json:"comment,omitempty"`
 	Endpoint          Endpoint          `json:"endpoint"`
 	KeepaliveInterval KeepaliveInterval `json:"keepalive-interval"`
 	PresharedKey      string            `json:"preshared-key"`
@@ -56,8 +40,7 @@ type Wireguard struct {
 	Peer []Peer `json:"peer"`
 }
 type RciShowScInterface struct {
-	Description   string        `json:"description"`
-	SecurityLevel SecurityLevel `json:"security-level"`
-	IP            IP            `json:"ip"`
-	Wireguard     Wireguard     `json:"wireguard"`
+	Description string    `json:"description,omitempty"`
+	IP          IP        `json:"ip,omitempty"`
+	Wireguard   Wireguard `json:"wireguard,omitempty"`
 }

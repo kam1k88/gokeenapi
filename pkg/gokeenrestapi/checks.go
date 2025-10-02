@@ -24,7 +24,7 @@ func (*checks) CheckInterfaceId(interfaceId string) error {
 }
 
 func (*checks) CheckInterfaceExists(interfaceId string) error {
-	interfaces, err := Interface.GetInterfacesViaRciShowInterfaces(true)
+	interfaces, err := Interface.GetInterfacesViaRciShowInterfaces(false)
 	if err != nil {
 		return err
 	}
