@@ -279,8 +279,9 @@ func (c *keeneticCommon) GetApiClient() *resty.Client {
 	if restyClient == nil {
 		restyClient = resty.New()
 		restyClient.SetDisableWarn(true)
-		restyClient.SetBaseURL(config.Cfg.Keenetic.URL)
 	}
+	// do it each time in case of GUI version
+	restyClient.SetBaseURL(config.Cfg.Keenetic.URL)
 	if restyClient.Header.Get("Cookie") == "" {
 		cookie, err := c.getAuthCookie()
 		if err != nil {
