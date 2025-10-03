@@ -8,6 +8,7 @@ type RciShowInterface struct {
 	Connected   string `json:"connected"`
 	Link        string `json:"link"`
 	State       string `json:"state"`
+	DefaultGw   bool   `json:"defaultgw,omitempty"`
 }
 
 type Import struct {
