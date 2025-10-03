@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 
 	"github.com/noksa/gokeenapi/pkg/config"
 	"go.uber.org/multierr"
@@ -30,4 +32,15 @@ func RestoreCursor() {
 		// make sure to restore cursor in all cases
 		_, _ = fmt.Fprint(os.Stdout, "\033[?25h")
 	}
+}
+
+func confirmAction(message string) (bool, error) {
+	fmt.Printf("%s (y/N): ", message)
+	reader := bufio.NewReader(os.Stdin)
+	response, err := reader.ReadString('\n')
+	if err != nil {
+		return false, err
+	}
+	response = strings.TrimSpace(strings.ToLower(response))
+	return response == "y" || response == "yes", nil
 }

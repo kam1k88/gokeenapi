@@ -151,6 +151,9 @@ Deletes static routes for a specific interface.
 
 # Delete routes for a specific interface
 ./gokeenapi delete-routes --config my_config.yaml --interface-id <your-interface-id>
+
+# Delete routes without confirmation prompt
+./gokeenapi delete-routes --config my_config.yaml --force
 ```
 
 #### `add-dns-records`
@@ -205,6 +208,9 @@ Deletes known hosts by name or MAC using regex pattern.
 
 # Delete hosts by MAC pattern
 ./gokeenapi delete-known-hosts --config my_config.yaml --mac-pattern "pattern"
+
+# Delete hosts without confirmation prompt
+./gokeenapi delete-known-hosts --config my_config.yaml --name-pattern "pattern" --force
 ```
 
 ---

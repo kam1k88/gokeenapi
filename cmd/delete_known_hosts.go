@@ -18,8 +18,10 @@ func newDeleteKnownHostsCmd() *cobra.Command {
 	}
 
 	var namePattern, macPattern string
+	var force bool
 	cmd.Flags().StringVar(&namePattern, "name-pattern", "", "Regex pattern to match host names for deletion")
 	cmd.Flags().StringVar(&macPattern, "mac-pattern", "", "Regex pattern to match host MAC addresses for deletion")
+	cmd.Flags().BoolVar(&force, "force", false, "Delete without confirmation")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		if (namePattern == "") == (macPattern == "") {
@@ -60,6 +62,18 @@ func newDeleteKnownHostsCmd() *cobra.Command {
 			gokeenlog.Info("No hosts found matching the pattern, no need to delete")
 			return nil
 		}
+
+		if !force {
+			confirmed, err := confirmAction(fmt.Sprintf("\nFound %d host(s) to delete. Do you want to continue?", len(hostMacsToDelete)))
+			if err != nil {
+				return err
+			}
+			if !confirmed {
+				gokeenlog.Info("Deletion cancelled")
+				return nil
+			}
+		}
+
 		return gokeenrestapi.Ip.DeleteKnownHosts(hostMacsToDelete)
 	}
 	return cmd
