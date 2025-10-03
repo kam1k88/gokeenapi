@@ -25,6 +25,39 @@ type keeneticIp struct {
 
 var Ip keeneticIp
 
+func (*keeneticIp) GetAllHotspots() (gokeenrestapimodels.RciShowIpHotspot, error) {
+	var hotspot gokeenrestapimodels.RciShowIpHotspot
+	err := gokeenspinner.WrapWithSpinner("Fetching hotspots", func() error {
+		body, err := Common.ExecuteGetSubPath("/rci/show/ip/hotspot")
+		if err != nil {
+			return err
+		}
+		return json.Unmarshal(body, &hotspot)
+	})
+	if err == nil {
+		gokeenlog.InfoSubStepf("Found %v hosts", color.BlueString("%v", len(hotspot.Host)))
+	}
+	return hotspot, err
+}
+
+func (*keeneticIp) DeleteKnownHosts(hostMacs []string) error {
+	if len(hostMacs) == 0 {
+		gokeenlog.Info("No need to delete known hosts")
+		return nil
+	}
+	var parseSlice []gokeenrestapimodels.ParseRequest
+	for _, mac := range hostMacs {
+		parse := gokeenrestapimodels.ParseRequest{
+			Parse: fmt.Sprintf("no known host \"%v\"", mac),
+		}
+		parseSlice = append(parseSlice, parse)
+	}
+	return gokeenspinner.WrapWithSpinner(fmt.Sprintf("Deleting %v known hosts", color.BlueString("%v", len(parseSlice))), func() error {
+		_, err := Common.ExecutePostParse(parseSlice...)
+		return err
+	})
+}
+
 func (*keeneticIp) GetAllUserRoutesRciIpRoute(keeneticInterface string) ([]gokeenrestapimodels.RciIpRoute, error) {
 	var routes []gokeenrestapimodels.RciIpRoute
 	err := gokeenspinner.WrapWithSpinner("Fetching static routes", func() error {

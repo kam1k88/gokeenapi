@@ -12,7 +12,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/noksa/gokeenapi)](https://hub.docker.com/r/noksa/gokeenapi)
 [![GitHub release](https://img.shields.io/github/release/Noksa/gokeenapi.svg)](https://github.com/Noksa/gokeenapi/releases)
 
-*Tired of clicking through web interfaces? Automate your Keenetic router management with simple CLI commands.*
+*Tired of clicking through Keenetic web interface? Automate your Keenetic router management with simple CLI commands.*
 
 [🚀 Quick Start](#-quick-start) • [📖 Documentation](#-commands) • [🎨 GUI Version](https://github.com/Noksa/gokeenapiui) • [🤝 Contributing](#-contributing)
 
@@ -27,7 +27,7 @@
 <td width="50%">
 
 ### 💻 **Automate Everything**
-Manage routes, DNS records, and WireGuard connections with simple commands
+Manage routes, DNS records, WireGuard connections, and known hosts with simple commands
 
 ### ⚙️ **Zero Router Setup**
 No complex configuration needed on your router - just provide the address
@@ -53,7 +53,9 @@ Not a command-line person? We've got you covered! Check out our user-friendly GU
 
 <div align="center">
 
-[![GUI Version](https://img.shields.io/badge/🎨_GUI_Version-Available-blue?style=for-the-badge)](https://github.com/Noksa/gokeenapiui)
+### [🎨 **GUI Version Available** 🚀](https://github.com/Noksa/gokeenapiui)
+
+[![GUI Version](https://img.shields.io/badge/🎨_Try_GUI_Version-Click_Here-brightgreen?style=for-the-badge&logo=github)](https://github.com/Noksa/gokeenapiui)
 
 </div>
 
@@ -189,6 +191,20 @@ Updates an existing WireGuard connection from a `.conf` file.
 
 ```shell
 ./gokeenapi update-awg --config my_config.yaml --conf-file <path-to-conf> --interface-id <interface-id>
+```
+
+#### `delete-known-hosts`
+
+*Aliases: `deleteknownhosts`, `dkh`*
+
+Deletes known hosts by name or MAC using regex pattern.
+
+```shell
+# Delete hosts by name pattern
+./gokeenapi delete-known-hosts --config my_config.yaml --name-pattern "pattern"
+
+# Delete hosts by MAC pattern
+./gokeenapi delete-known-hosts --config my_config.yaml --mac-pattern "pattern"
 ```
 
 ---
