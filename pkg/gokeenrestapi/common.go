@@ -306,3 +306,7 @@ func (c *keeneticCommon) ShowRunningConfig() (gokeenrestapimodels.RunningConfig,
 	})
 	return runningConfig, err
 }
+
+func (c *keeneticCommon) SaveConfigParseRequest() gokeenrestapimodels.ParseRequest {
+	return gokeenrestapimodels.ParseRequest{Parse: "system configuration save"}
+}

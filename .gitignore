@@ -7,3 +7,5 @@ config_*.yaml
 binaries
 scripts/upload_routes*.sh
 batfiles/file*.bat
+coverage.html
+coverage.out

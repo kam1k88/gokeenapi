@@ -10,8 +10,8 @@ import (
 
 func newAddRoutesCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "add-routes",
-		Aliases: []string{"addroutes", "ar"},
+		Use:     CmdAddRoutes,
+		Aliases: AliasesAddRoutes,
 		Short:   "Add static routes in Keenetic router",
 	}
 

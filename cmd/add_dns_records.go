@@ -14,8 +14,8 @@ import (
 
 func newAddDnsRecordsCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "add-dns-records",
-		Aliases: []string{"adddnsrecords", "adr"},
+		Use:     CmdAddDnsRecords,
+		Aliases: AliasesAddDnsRecords,
 		Short:   "Add static dns records in Keenetic router",
 	}
 
@@ -35,7 +35,7 @@ func newAddDnsRecordsCmd() *cobra.Command {
 			return nil
 		}
 		err := gokeenspinner.WrapWithSpinner(fmt.Sprintf("Adding %v DNS records", color.CyanString("%v", len(parseC))), func() error {
-			parseC = append(parseC, gokeenrestapimodels.ParseRequest{Parse: "system configuration save"})
+			parseC = append(parseC, gokeenrestapi.Common.SaveConfigParseRequest())
 			result, err := gokeenrestapi.Common.ExecutePostParse(parseC...)
 			if err != nil {
 				return err

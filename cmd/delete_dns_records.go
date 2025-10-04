@@ -15,10 +15,13 @@ import (
 
 func newDeleteDnsRecordsCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "delete-dns-records",
-		Aliases: []string{"deletednsrecords", "ddr"},
+		Use:     CmdDeleteDnsRecords,
+		Aliases: AliasesDeleteDnsRecords,
 		Short:   "Delete static dns records in Keenetic router",
 	}
+
+	var force bool
+	cmd.Flags().BoolVar(&force, "force", false, "Delete without confirmation")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		runningConfig, err := gokeenrestapi.Common.ShowRunningConfig()
@@ -32,15 +35,30 @@ func newDeleteDnsRecordsCmd() *cobra.Command {
 				if !slices.Contains(runningConfig.Message, c) {
 					continue
 				}
+				gokeenlog.InfoSubStepf("DNS record to delete: %v -> %v",
+					color.CyanString(addDnsRecordSetting.Domain),
+					color.BlueString(ip))
 				c = fmt.Sprintf("no %v", c)
 				parseC = append(parseC, gokeenrestapimodels.ParseRequest{Parse: c})
 			}
 		}
 		if len(parseC) == 0 {
+			gokeenlog.Info("No DNS records found to delete")
 			return nil
 		}
+
+		if !force {
+			confirmed, err := confirmAction(fmt.Sprintf("\nFound %v DNS record(s) to delete. Do you want to continue?", len(parseC)))
+			if err != nil {
+				return err
+			}
+			if !confirmed {
+				gokeenlog.Info("Deletion cancelled")
+				return nil
+			}
+		}
 		err = gokeenspinner.WrapWithSpinner(fmt.Sprintf("Deleting %v DNS records", color.CyanString("%v", len(parseC))), func() error {
-			parseC = append(parseC, gokeenrestapimodels.ParseRequest{Parse: "system configuration save"})
+			parseC = append(parseC, gokeenrestapi.Common.SaveConfigParseRequest())
 			result, err := gokeenrestapi.Common.ExecutePostParse(parseC...)
 			if err != nil {
 				return err

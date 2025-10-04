@@ -22,7 +22,7 @@ func NewRootCmd() *cobra.Command {
 	rootCmd.PersistentFlags().StringVar(&configFile, "config", "", "Path to YAML config file (required)")
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		// completion and help commands should run without any checks and init
-		commandsToSkip := []string{"completion", "help"}
+		commandsToSkip := []string{CmdCompletion, CmdHelp}
 		for _, commandToSkip := range commandsToSkip {
 			if strings.Contains(cmd.CommandPath(), commandToSkip) {
 				return nil

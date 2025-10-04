@@ -13,8 +13,8 @@ import (
 
 func newDeleteRoutesCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "delete-routes",
-		Aliases: []string{"deleteroutes", "dr"},
+		Use:     CmdDeleteRoutes,
+		Aliases: AliasesDeleteRoutes,
 		Short:   "Delete static routes in Keenetic router",
 	}
 

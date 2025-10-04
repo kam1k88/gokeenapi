@@ -12,8 +12,8 @@ import (
 
 func newDeleteKnownHostsCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "delete-known-hosts",
-		Aliases: []string{"deleteknownhosts", "dkh"},
+		Use:     CmdDeleteKnownHosts,
+		Aliases: AliasesDeleteKnownHosts,
 		Short:   "Delete known hosts by name or MAC using regex pattern",
 	}
 

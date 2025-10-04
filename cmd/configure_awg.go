@@ -9,8 +9,8 @@ import (
 
 func newUpdateAwgCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "update-awg",
-		Aliases: []string{"updateawg", "uawg"},
+		Use:     CmdUpdateAwg,
+		Aliases: AliasesUpdateAwg,
 		Short:   "Update AWG connection to add(update) ASC parameters in it in Keenetic router",
 	}
 	var confFile, interfaceId string

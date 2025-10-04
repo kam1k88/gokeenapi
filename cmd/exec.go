@@ -12,27 +12,38 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// execCommand executes a command on the Keenetic router and returns the results
+func execCommand(args []string) ([]gokeenrestapimodels.ParseResponse, error) {
+	cmdToExecute := strings.Join(args, " ")
+	parseC := gokeenrestapimodels.ParseRequest{Parse: cmdToExecute}
+	return gokeenrestapi.Common.ExecutePostParse(parseC)
+}
+
+// printExecResults prints the execution results to stdout
+func printExecResults(results []gokeenrestapimodels.ParseResponse) {
+	gokeenlog.Info("Result:")
+	for _, r := range results {
+		if r.Parse.DynamicData != "" {
+			fmt.Println(r.Parse.DynamicData)
+		}
+	}
+}
+
 func newExecCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "exec",
-		Aliases: []string{"e"},
+		Use:     CmdExec,
+		Aliases: AliasesExec,
 		Short:   "Execute any custom command in Keenetic router",
 	}
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		cmdToExecute := strings.Join(args, " ")
-		parseC := gokeenrestapimodels.ParseRequest{Parse: cmdToExecute}
 		return gokeenspinner.WrapWithSpinner(fmt.Sprintf("Executing %v command", color.CyanString(cmdToExecute)), func() error {
-			result, err := gokeenrestapi.Common.ExecutePostParse(parseC)
+			result, err := execCommand(args)
 			if err != nil {
 				return err
 			}
-			gokeenlog.Info("Result:")
-			for _, r := range result {
-				if r.Parse.DynamicData != "" {
-					fmt.Println(r.Parse.DynamicData)
-				}
-			}
+			printExecResults(result)
 			return nil
 		})
 	}
