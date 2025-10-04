@@ -90,6 +90,27 @@ func SetupMockServer() *httptest.Server {
 		encodeJSON(w, interfaces)
 	})
 
+	// Hotspot endpoint
+	mux.HandleFunc("/rci/show/ip/hotspot", func(w http.ResponseWriter, r *http.Request) {
+		hotspot := gokeenrestapimodels.RciShowIpHotspot{
+			Host: []gokeenrestapimodels.Host{
+				{
+					Name:     "test-device-1",
+					Mac:      "aa:bb:cc:dd:ee:ff",
+					IP:       "192.168.1.100",
+					Hostname: "device1",
+				},
+				{
+					Name:     "test-device-2",
+					Mac:      "11:22:33:44:55:66",
+					IP:       "192.168.1.101",
+					Hostname: "device2",
+				},
+			},
+		}
+		encodeJSON(w, hotspot)
+	})
+
 	// Parse endpoint
 	mux.HandleFunc("/rci/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {

@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-// CmdTestSuite provides common test setup for command tests
+// CmdTestSuite provides common test setup for all command tests
 type CmdTestSuite struct {
 	suite.Suite
 	server *httptest.Server
