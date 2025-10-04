@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"io"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -31,18 +29,8 @@ func (s *ShowInterfacesTestSuite) TestNewShowInterfacesCmd() {
 }
 
 func (s *ShowInterfacesTestSuite) TestShowInterfacesCmd_Execute() {
-	old := os.Stdout
-	r, w, _ := os.Pipe()
-	os.Stdout = w
-
 	cmd := newShowInterfacesCmd()
-	err := cmd.RunE(cmd, []string{})
-
-	w.Close()
-	os.Stdout = old
-
-	out, _ := io.ReadAll(r)
-	output := string(out)
+	output, err := s.CaptureOutput(cmd, []string{})
 
 	assert.NoError(s.T(), err)
 	assert.Contains(s.T(), output, "Wireguard0")
@@ -50,19 +38,9 @@ func (s *ShowInterfacesTestSuite) TestShowInterfacesCmd_Execute() {
 }
 
 func (s *ShowInterfacesTestSuite) TestShowInterfacesCmd_WithTypeFilter() {
-	old := os.Stdout
-	r, w, _ := os.Pipe()
-	os.Stdout = w
-
 	cmd := newShowInterfacesCmd()
 	cmd.Flags().Set("type", "Wireguard")
-	err := cmd.RunE(cmd, []string{})
-
-	w.Close()
-	os.Stdout = old
-
-	out, _ := io.ReadAll(r)
-	output := string(out)
+	output, err := s.CaptureOutput(cmd, []string{})
 
 	assert.NoError(s.T(), err)
 	assert.Contains(s.T(), output, "Wireguard0")

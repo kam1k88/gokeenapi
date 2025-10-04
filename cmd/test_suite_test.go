@@ -1,9 +1,12 @@
 package cmd
 
 import (
+	"io"
 	"net/http/httptest"
+	"os"
 
 	"github.com/noksa/gokeenapi/pkg/gokeenrestapi"
+	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -27,4 +30,19 @@ func (s *CmdTestSuite) TearDownSuite() {
 	if s.server != nil {
 		s.server.Close()
 	}
+}
+
+// CaptureOutput executes a command and captures its stdout output
+func (s *CmdTestSuite) CaptureOutput(cmd *cobra.Command, args []string) (string, error) {
+	old := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+
+	err := cmd.RunE(cmd, args)
+
+	w.Close()
+	os.Stdout = old
+	out, _ := io.ReadAll(r)
+
+	return string(out), err
 }
