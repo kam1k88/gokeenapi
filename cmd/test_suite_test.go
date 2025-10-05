@@ -40,7 +40,7 @@ func (s *CmdTestSuite) CaptureOutput(cmd *cobra.Command, args []string) (string,
 
 	err := cmd.RunE(cmd, args)
 
-	w.Close()
+	_ = w.Close()
 	os.Stdout = old
 	out, _ := io.ReadAll(r)
 

@@ -39,7 +39,7 @@ func (s *ShowInterfacesTestSuite) TestShowInterfacesCmd_Execute() {
 
 func (s *ShowInterfacesTestSuite) TestShowInterfacesCmd_WithTypeFilter() {
 	cmd := newShowInterfacesCmd()
-	cmd.Flags().Set("type", "Wireguard")
+	_ = cmd.Flags().Set("type", "Wireguard")
 	output, err := s.CaptureOutput(cmd, []string{})
 
 	assert.NoError(s.T(), err)

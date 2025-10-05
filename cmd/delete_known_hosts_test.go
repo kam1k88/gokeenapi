@@ -44,8 +44,8 @@ func (s *DeleteKnownHostsTestSuite) TestDeleteKnownHostsCmd_NoPattern() {
 
 func (s *DeleteKnownHostsTestSuite) TestDeleteKnownHostsCmd_BothPatterns() {
 	cmd := newDeleteKnownHostsCmd()
-	cmd.Flags().Set("name-pattern", "test")
-	cmd.Flags().Set("mac-pattern", "aa:bb")
+	_ = cmd.Flags().Set("name-pattern", "test")
+	_ = cmd.Flags().Set("mac-pattern", "aa:bb")
 
 	err := cmd.RunE(cmd, []string{})
 	assert.Error(s.T(), err)
@@ -54,7 +54,7 @@ func (s *DeleteKnownHostsTestSuite) TestDeleteKnownHostsCmd_BothPatterns() {
 
 func (s *DeleteKnownHostsTestSuite) TestDeleteKnownHostsCmd_InvalidRegex() {
 	cmd := newDeleteKnownHostsCmd()
-	cmd.Flags().Set("name-pattern", "[invalid")
+	_ = cmd.Flags().Set("name-pattern", "[invalid")
 
 	err := cmd.RunE(cmd, []string{})
 	assert.Error(s.T(), err)
@@ -62,8 +62,8 @@ func (s *DeleteKnownHostsTestSuite) TestDeleteKnownHostsCmd_InvalidRegex() {
 
 func (s *DeleteKnownHostsTestSuite) TestDeleteKnownHostsCmd_NamePattern() {
 	cmd := newDeleteKnownHostsCmd()
-	cmd.Flags().Set("name-pattern", "nonexistent")
-	cmd.Flags().Set("force", "true")
+	_ = cmd.Flags().Set("name-pattern", "nonexistent")
+	_ = cmd.Flags().Set("force", "true")
 
 	err := cmd.RunE(cmd, []string{})
 	assert.NoError(s.T(), err)
@@ -71,8 +71,8 @@ func (s *DeleteKnownHostsTestSuite) TestDeleteKnownHostsCmd_NamePattern() {
 
 func (s *DeleteKnownHostsTestSuite) TestDeleteKnownHostsCmd_MacPattern() {
 	cmd := newDeleteKnownHostsCmd()
-	cmd.Flags().Set("mac-pattern", "nonexistent")
-	cmd.Flags().Set("force", "true")
+	_ = cmd.Flags().Set("mac-pattern", "nonexistent")
+	_ = cmd.Flags().Set("force", "true")
 
 	err := cmd.RunE(cmd, []string{})
 	assert.NoError(s.T(), err)

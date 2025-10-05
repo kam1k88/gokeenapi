@@ -68,7 +68,7 @@ dns:`
 
 func TestLoadConfig_EmptyPath(t *testing.T) {
 	// Clear environment variable
-	os.Unsetenv("GOKEENAPI_CONFIG")
+	_ = os.Unsetenv("GOKEENAPI_CONFIG")
 
 	err := LoadConfig("")
 	assert.Error(t, err)
@@ -87,8 +87,8 @@ func TestLoadConfig_FromEnvironment(t *testing.T) {
 	require.NoError(t, err)
 
 	// Set environment variable
-	os.Setenv("GOKEENAPI_CONFIG", configPath)
-	defer os.Unsetenv("GOKEENAPI_CONFIG")
+	_ = os.Setenv("GOKEENAPI_CONFIG", configPath)
+	defer func() { _ = os.Unsetenv("GOKEENAPI_CONFIG") }()
 
 	err = LoadConfig("")
 	assert.NoError(t, err)
@@ -107,11 +107,11 @@ func TestLoadConfig_EnvironmentOverrides(t *testing.T) {
 	require.NoError(t, err)
 
 	// Set environment overrides
-	os.Setenv("GOKEENAPI_KEENETIC_LOGIN", "env_admin")
-	os.Setenv("GOKEENAPI_KEENETIC_PASSWORD", "env_password")
+	_ = os.Setenv("GOKEENAPI_KEENETIC_LOGIN", "env_admin")
+	_ = os.Setenv("GOKEENAPI_KEENETIC_PASSWORD", "env_password")
 	defer func() {
-		os.Unsetenv("GOKEENAPI_KEENETIC_LOGIN")
-		os.Unsetenv("GOKEENAPI_KEENETIC_PASSWORD")
+		_ = os.Unsetenv("GOKEENAPI_KEENETIC_LOGIN")
+		_ = os.Unsetenv("GOKEENAPI_KEENETIC_PASSWORD")
 	}()
 
 	err = LoadConfig(configPath)
@@ -134,8 +134,8 @@ func TestLoadConfig_DockerEnvironment(t *testing.T) {
 	require.NoError(t, err)
 
 	// Set Docker environment
-	os.Setenv("GOKEENAPI_INSIDE_DOCKER", "true")
-	defer os.Unsetenv("GOKEENAPI_INSIDE_DOCKER")
+	_ = os.Setenv("GOKEENAPI_INSIDE_DOCKER", "true")
+	defer func() { _ = os.Unsetenv("GOKEENAPI_INSIDE_DOCKER") }()
 
 	err = LoadConfig(configPath)
 	assert.NoError(t, err)

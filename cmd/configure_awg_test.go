@@ -32,7 +32,7 @@ func (s *ConfigureAwgTestSuite) TestNewUpdateAwgCmd() {
 
 func (s *ConfigureAwgTestSuite) TestUpdateAwgCmd_MissingConfFile() {
 	cmd := newUpdateAwgCmd()
-	cmd.Flags().Set("interface-id", "Wireguard0")
+	_ = cmd.Flags().Set("interface-id", "Wireguard0")
 
 	err := cmd.RunE(cmd, []string{})
 	assert.Error(s.T(), err)
@@ -41,7 +41,7 @@ func (s *ConfigureAwgTestSuite) TestUpdateAwgCmd_MissingConfFile() {
 
 func (s *ConfigureAwgTestSuite) TestUpdateAwgCmd_MissingInterfaceId() {
 	cmd := newUpdateAwgCmd()
-	cmd.Flags().Set("conf-file", "/tmp/test.conf")
+	_ = cmd.Flags().Set("conf-file", "/tmp/test.conf")
 
 	err := cmd.RunE(cmd, []string{})
 	assert.Error(s.T(), err)

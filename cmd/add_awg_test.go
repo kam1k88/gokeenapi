@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -40,29 +38,9 @@ func (s *AddAwgTestSuite) TestAddAwgCmd_MissingConfFile() {
 	assert.Contains(s.T(), err.Error(), "conf-file flag is required")
 }
 
-func (s *AddAwgTestSuite) createTestWireGuardConfig() string {
-	confContent := `[Interface]
-PrivateKey = cOFA+3p5IjkzIjkzIjkzIjkzIjkzIjkzIjkzIjkzIjk=
-Address = 10.0.0.2/24
-DNS = 8.8.8.8
-
-[Peer]
-PublicKey = gN65BkIKy1eCE9pP1wdc8ROUunkiVXrBvGAKBEKdOQI=
-Endpoint = example.com:51820
-AllowedIPs = 0.0.0.0/0`
-
-	tmpDir := s.T().TempDir()
-	confPath := filepath.Join(tmpDir, "test.conf")
-
-	err := os.WriteFile(confPath, []byte(confContent), 0644)
-	s.Require().NoError(err)
-
-	return confPath
-}
-
 func (s *AddAwgTestSuite) TestAddAwgCmd_InvalidPath() {
 	cmd := newAddAwgCmd()
-	cmd.Flags().Set("conf-file", "/nonexistent/path.conf")
+	_ = cmd.Flags().Set("conf-file", "/nonexistent/path.conf")
 
 	err := cmd.RunE(cmd, []string{})
 	assert.Error(s.T(), err)

@@ -40,7 +40,7 @@ func (s *DeleteDnsRecordsTestSuite) TestDeleteDnsRecordsCmd_WithForce() {
 	}
 
 	cmd := newDeleteDnsRecordsCmd()
-	cmd.Flags().Set("force", "true")
+	_ = cmd.Flags().Set("force", "true")
 
 	err := cmd.RunE(cmd, []string{})
 	assert.NoError(s.T(), err)
@@ -50,7 +50,7 @@ func (s *DeleteDnsRecordsTestSuite) TestDeleteDnsRecordsCmd_EmptyRecords() {
 	config.Cfg.DNS = config.DNS{Records: []config.DnsRecord{}}
 
 	cmd := newDeleteDnsRecordsCmd()
-	cmd.Flags().Set("force", "true")
+	_ = cmd.Flags().Set("force", "true")
 
 	err := cmd.RunE(cmd, []string{})
 	assert.NoError(s.T(), err)

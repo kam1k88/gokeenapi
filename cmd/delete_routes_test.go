@@ -38,8 +38,8 @@ func (s *DeleteRoutesTestSuite) TestDeleteRoutesCmd_WithInterfaceId() {
 	}
 
 	cmd := newDeleteRoutesCmd()
-	cmd.Flags().Set("interface-id", "Wireguard0")
-	cmd.Flags().Set("force", "true")
+	_ = cmd.Flags().Set("interface-id", "Wireguard0")
+	_ = cmd.Flags().Set("force", "true")
 
 	err := cmd.RunE(cmd, []string{})
 	assert.NoError(s.T(), err)
@@ -51,7 +51,7 @@ func (s *DeleteRoutesTestSuite) TestDeleteRoutesCmd_WithForceFlag() {
 	}
 
 	cmd := newDeleteRoutesCmd()
-	cmd.Flags().Set("force", "true")
+	_ = cmd.Flags().Set("force", "true")
 
 	err := cmd.RunE(cmd, []string{})
 	assert.NoError(s.T(), err)

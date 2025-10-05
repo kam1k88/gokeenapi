@@ -72,8 +72,8 @@ func (s *CommonTestSuite) TestConfirmAction_Yes() {
 	r, w, _ := os.Pipe()
 	os.Stdin = r
 	go func() {
-		defer w.Close()
-		w.Write([]byte("y\n"))
+		defer func() { _ = w.Close() }()
+		_, _ = w.Write([]byte("y\n"))
 	}()
 
 	result, err := confirmAction("Test question?")
@@ -89,8 +89,8 @@ func (s *CommonTestSuite) TestConfirmAction_No() {
 	r, w, _ := os.Pipe()
 	os.Stdin = r
 	go func() {
-		defer w.Close()
-		w.Write([]byte("n\n"))
+		defer func() { _ = w.Close() }()
+		_, _ = w.Write([]byte("n\n"))
 	}()
 
 	result, err := confirmAction("Test question?")
@@ -105,7 +105,7 @@ func (s *CommonTestSuite) TestConfirmAction_EOF() {
 
 	r, w, _ := os.Pipe()
 	os.Stdin = r
-	w.Close() // Close immediately to simulate EOF
+	_ = w.Close() // Close immediately to simulate EOF
 
 	result, err := confirmAction("Test question?")
 	assert.Error(s.T(), err)
