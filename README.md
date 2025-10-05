@@ -97,6 +97,25 @@ Download the latest release for your platform:
 
 To use your configuration file, pass the `--config <path>` flag with your command.
 
+### Environment Variables
+
+For security, you can store sensitive credentials as environment variables instead of in the config file:
+
+- `GOKEENAPI_KEENETIC_LOGIN` - Router admin login
+- `GOKEENAPI_KEENETIC_PASSWORD` - Router admin password
+
+---
+
+## 🔧 Supported Routers
+
+`gokeenapi` has been tested with the following Keenetic router models:
+
+- **Keenetic Start**
+- **Keenetic Viva** 
+- **Keenetic Giga**
+
+Since the utility works with Keenetic Start (the most affordable model in the lineup), it should be compatible with all Keenetic router models.
+
 ---
 
 ## 🎬 Video Demos
