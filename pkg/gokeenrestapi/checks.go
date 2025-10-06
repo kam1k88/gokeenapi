@@ -10,12 +10,14 @@ import (
 )
 
 var (
+	// Checks provides validation functions for router interface and configuration checks
 	Checks = checks{}
 )
 
 type checks struct {
 }
 
+// CheckInterfaceId validates that the provided interface ID is not empty
 func (*checks) CheckInterfaceId(interfaceId string) error {
 	if interfaceId == "" {
 		return errors.New("please specify a keenetic interface id via flag/field/variable")
@@ -23,6 +25,7 @@ func (*checks) CheckInterfaceId(interfaceId string) error {
 	return nil
 }
 
+// CheckInterfaceExists verifies that the specified interface ID exists on the router
 func (*checks) CheckInterfaceExists(interfaceId string) error {
 	interfaces, err := Interface.GetInterfacesViaRciShowInterfaces(false)
 	if err != nil {
@@ -41,6 +44,8 @@ func (*checks) CheckInterfaceExists(interfaceId string) error {
 	return nil
 }
 
+// CheckAWGInterfaceExistsFromConfFile checks if a WireGuard connection from the config file already exists
+// Returns an error if a matching WireGuard interface is found with the same configuration
 func (*checks) CheckAWGInterfaceExistsFromConfFile(confPath string) error {
 	interfaces, err := Interface.GetInterfacesViaRciShowInterfaces(true, "Wireguard")
 	if err != nil {

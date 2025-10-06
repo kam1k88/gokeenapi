@@ -23,8 +23,12 @@ const (
 type keeneticIp struct {
 }
 
-var Ip keeneticIp
+var (
+	// Ip provides IP-related functionality including routing, DNS, and host management
+	Ip keeneticIp
+)
 
+// GetAllHotspots retrieves all known hosts (devices) from the router's hotspot database
 func (*keeneticIp) GetAllHotspots() (gokeenrestapimodels.RciShowIpHotspot, error) {
 	var hotspot gokeenrestapimodels.RciShowIpHotspot
 	err := gokeenspinner.WrapWithSpinner("Fetching hotspots", func() error {
@@ -40,6 +44,7 @@ func (*keeneticIp) GetAllHotspots() (gokeenrestapimodels.RciShowIpHotspot, error
 	return hotspot, err
 }
 
+// DeleteKnownHosts removes devices from the router's known hosts list by MAC address
 func (*keeneticIp) DeleteKnownHosts(hostMacs []string) error {
 	if len(hostMacs) == 0 {
 		gokeenlog.Info("No need to delete known hosts")
@@ -58,6 +63,7 @@ func (*keeneticIp) DeleteKnownHosts(hostMacs []string) error {
 	})
 }
 
+// GetAllUserRoutesRciIpRoute retrieves all user-defined static routes for a specific interface
 func (*keeneticIp) GetAllUserRoutesRciIpRoute(keeneticInterface string) ([]gokeenrestapimodels.RciIpRoute, error) {
 	var routes []gokeenrestapimodels.RciIpRoute
 	err := gokeenspinner.WrapWithSpinner("Fetching static routes", func() error {
@@ -81,6 +87,7 @@ func (*keeneticIp) GetAllUserRoutesRciIpRoute(keeneticInterface string) ([]gokee
 	return realRoutes, err
 }
 
+// DeleteRoutes removes static routes from the specified interface
 func (*keeneticIp) DeleteRoutes(routes []gokeenrestapimodels.RciIpRoute, interfaceId string) error {
 	if len(routes) == 0 {
 		gokeenlog.Info("No need to delete static routes")
@@ -108,6 +115,7 @@ func (*keeneticIp) DeleteRoutes(routes []gokeenrestapimodels.RciIpRoute, interfa
 	})
 }
 
+// AddDnsRecords adds static DNS records to the router configuration
 func (*keeneticIp) AddDnsRecords(domains []string) error {
 	var parseSlice []gokeenrestapimodels.ParseRequest
 	for _, domain := range domains {
@@ -121,6 +129,7 @@ func (*keeneticIp) AddDnsRecords(domains []string) error {
 	})
 }
 
+// DeleteDnsRecords removes static DNS records from the router configuration
 func (*keeneticIp) DeleteDnsRecords(domains []string) error {
 	var parseSlice []gokeenrestapimodels.ParseRequest
 	for _, domain := range domains {
@@ -134,6 +143,7 @@ func (*keeneticIp) DeleteDnsRecords(domains []string) error {
 	})
 }
 
+// AddRoutesFromBatFile parses a local .bat file and adds the contained routes to the specified interface
 func (*keeneticIp) AddRoutesFromBatFile(batFile string, interfaceId string) error {
 	matcher := regexp.MustCompile(regex)
 	b, err := os.ReadFile(batFile)
@@ -169,6 +179,7 @@ func (*keeneticIp) AddRoutesFromBatFile(batFile string, interfaceId string) erro
 	return mErr
 }
 
+// AddRoutesFromBatUrl downloads a .bat file from a URL and adds the contained routes to the specified interface
 func (*keeneticIp) AddRoutesFromBatUrl(url string, interfaceId string) error {
 	matcher := regexp.MustCompile(regex)
 	rClient := resty.New()

@@ -14,11 +14,47 @@ func newAddAwgCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     CmdAddAwg,
 		Aliases: AliasesAddAwg,
-		Short:   "Add AWG connection from conf file in Keenetic router",
+		Short:   "Set up a new WireGuard VPN connection",
+		Long: `Add a new WireGuard (AWG) VPN connection to your Keenetic router from a .conf file.
+
+This command creates and configures a new WireGuard interface using a standard 
+WireGuard configuration file. The interface is automatically configured, enabled,
+and brought up after creation.
+
+The .conf file should contain standard WireGuard configuration:
+  [Interface]
+  PrivateKey = ...
+  Address = ...
+  
+  [Peer]
+  PublicKey = ...
+  Endpoint = ...
+  AllowedIPs = ...
+
+Process:
+1. Validates the configuration file
+2. Creates a new WireGuard interface
+3. Applies the configuration
+4. Enables global IP routing
+5. Brings the interface up
+6. Waits for interface to become active
+
+Examples:
+  # Add WireGuard connection with auto-generated name
+  gokeenapi add-awg --config config.yaml --conf-file /path/to/wg.conf
+
+  # Add WireGuard connection with custom name
+  gokeenapi add-awg --config config.yaml --conf-file /path/to/wg.conf --name MyVPN`,
 	}
 	var name, confFile string
-	cmd.Flags().StringVar(&confFile, "conf-file", "", "Path to a conf file with AWG configuration")
-	cmd.Flags().StringVar(&name, "name", "", "Name for new WG interface, optional")
+	cmd.Flags().StringVar(&confFile, "conf-file", "",
+		`Path to WireGuard configuration file (.conf).
+Must contain valid [Interface] and [Peer] sections.
+This flag is required.`)
+	cmd.Flags().StringVar(&name, "name", "",
+		`Custom name for the new WireGuard interface.
+If not specified, Keenetic will auto-generate a name (e.g., Wireguard0).
+The name will be used as the interface ID for other commands.`)
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		if confFile == "" {

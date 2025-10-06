@@ -14,12 +14,15 @@ import (
 	"gopkg.in/ini.v1"
 )
 
-var AwgConf keeneticAwgconf
+var (
+	// AwgConf provides WireGuard (AWG) configuration management functionality
+	AwgConf keeneticAwgconf
+)
 
 type keeneticAwgconf struct{}
 
-// ConfigureOrUpdateInterface checks if ASC parameters should be adjusted in the interfaceId
-// Starting from 4.3.6 KeeneticOS automatically adds ASC from AWG conf file when it is imported
+// ConfigureOrUpdateInterface updates an existing WireGuard interface with configuration from a .conf file
+// Automatically handles ASC (Allowed Source Check) parameters for KeeneticOS 4.3.6+
 func (*keeneticAwgconf) ConfigureOrUpdateInterface(confPath, interfaceId string) error {
 	if confPath == "" {
 		return fmt.Errorf("conf-file flag is required")
@@ -150,6 +153,7 @@ func (*keeneticAwgconf) ConfigureOrUpdateInterface(confPath, interfaceId string)
 	})
 }
 
+// AddInterface creates a new WireGuard interface from a .conf file
 func (*keeneticAwgconf) AddInterface(confFile string, name string) (gokeenrestapimodels.CreatedInterface, error) {
 	b, err := os.ReadFile(confFile)
 	if err != nil {

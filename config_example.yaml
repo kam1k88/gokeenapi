@@ -1,41 +1,80 @@
-# Keenetic router settings
+# =============================================================================
+# Keenetic Router API Configuration
+# =============================================================================
+
+# Router connection settings
 keenetic:
-  # URL of the router. Can be IP address or DNS from KeenDNS service (http/https both are supported)
+  # Router URL - IP address or KeenDNS hostname (http/https supported)
+  # Examples: http://192.168.1.1, https://myrouter.keenetic.pro
   url: http://192.168.1.1
-  # Admin login to use
-  # This sensitive data can be stored in GOKEENAPI_KEENETIC_LOGIN environment variable instead
+  
+  # Router admin login
+  # Can be overridden with GOKEENAPI_KEENETIC_LOGIN environment variable
   login: super-login
-  # Admin password to use
-  # This sensitive data can be stored in GOKEENAPI_KEENETIC_PASSWORD environment variable instead
+  
+  # Router admin password
+  # Can be overridden with GOKEENAPI_KEENETIC_PASSWORD environment variable
   password: super-password
 
-# A list of routes to be added/updated/deleted in the router
+# Optional: Custom data directory for application files
+# Default: system-specific directory
+# Docker: automatically set to /etc/gokeenapi when GOKEENAPI_INSIDE_DOCKER is set
+# dataDir: /path/to/data/directory
+
+# =============================================================================
+# Static Routes Configuration
+# Used by: add-routes, delete-routes commands
+# =============================================================================
+
 routes:
-    # Existing interface id to add/update routes on it
+  # Route configuration for specific interface
+  # Use 'show-interfaces' command to list available interface IDs
   - interfaceId: Wireguard0
-    # A list of bat files to add routes from to the interfaceId
+    
+    # Local .bat files containing Windows-style route commands
+    # Format: route add <network> mask <netmask> <gateway>
     bat-file:
       - /path/to/batfile.bat
       - /path/to/batfile2.bat
-    # A list of urls with bat files from which routes should be added to the interfaceId
+    
+    # Remote URLs serving .bat files with route definitions
+    # Downloaded and processed by add-routes command
     bat-url:
       - https://iplist.opencck.org/?format=bat&data=cidr4&site=instagram.com
       - https://iplist.opencck.org/?format=bat&data=cidr4&site=youtube.com
       - https://iplist.opencck.org/?format=bat&data=cidr4&site=facebook.com
+  
+  # Additional interface example
   - interfaceId: Wireguard1
     bat-file:
       - /path/to/batfile-second-interface.bat
     bat-url: []
 
-# Settings for DNS commands
+# =============================================================================
+# DNS Records Configuration
+# Used by: add-dns-records, delete-dns-records commands
+# =============================================================================
+
 dns:
-  # Settings for DNS records
   records:
-      # A list of dns records to be added/updated/deleted in the router
-      # Every domain can have multiple ip address
-      # Result will be translated in the following keenetic cli command
-      # ip host <domain> <ip-address> (for each specified ip address)
+    # Static DNS records to manage in the router
+    # Each domain can resolve to multiple IP addresses
+    
     - domain: keenetic.local
       ip:
         - 192.168.1.1
         - 192.168.2.1
+    
+    - domain: example.local
+      ip:
+        - 10.0.0.1
+
+# =============================================================================
+# Logging Configuration
+# Used by: --debug global flag
+# =============================================================================
+
+logs:
+  # Enable debug logging for all commands
+  # Also controllable via --debug command line flag
+  debug: false

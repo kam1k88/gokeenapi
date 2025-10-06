@@ -33,7 +33,35 @@ func newExecCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     CmdExec,
 		Aliases: AliasesExec,
-		Short:   "Execute any custom command in Keenetic router",
+		Short:   "Run custom router commands directly",
+		Long: `Execute custom Keenetic CLI commands directly on your router via REST API.
+
+This command provides direct access to the Keenetic router's command-line interface,
+allowing you to run any supported CLI command. It's useful for advanced configuration
+tasks not covered by other gokeenapi commands.
+
+The command accepts Keenetic CLI syntax and returns the router's response.
+Multiple words are automatically joined with spaces to form the complete command.
+
+Examples:
+  # Show system information
+  gokeenapi exec --config config.yaml show version
+
+  # Display interface statistics
+  gokeenapi exec --config config.yaml show interface
+
+  # Show routing table
+  gokeenapi exec --config config.yaml show ip route
+
+  # Display WireGuard status
+  gokeenapi exec --config config.yaml show interface Wireguard0
+
+  # Execute configuration commands
+  gokeenapi exec --config config.yaml interface Wireguard0 description "My VPN"
+
+Warning: This command provides direct router access. Incorrect commands may
+affect router functionality. Use with caution and ensure you understand
+the Keenetic CLI syntax before executing commands.`,
 	}
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {

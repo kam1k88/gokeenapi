@@ -17,9 +17,41 @@ func NewRootCmd() *cobra.Command {
 	var configFile string
 	rootCmd.Use = "gokeenapi"
 	rootCmd.SilenceErrors = true
-	rootCmd.Short = "A utility to run commands (such as add/del routes) in Keenetic routers via REST API"
-	rootCmd.PersistentFlags().Bool("debug", false, "Enable debug mode and logging")
-	rootCmd.PersistentFlags().StringVar(&configFile, "config", "", "Path to YAML config file (required)")
+	rootCmd.Short = "Automate your Keenetic router management with simple commands"
+	rootCmd.Long = `gokeenapi - Automate your Keenetic router management with ease
+
+A powerful command-line utility for managing Keenetic routers via REST API.
+Supports route management, DNS configuration, WireGuard setup, and more.
+
+Key features:
+• Add/delete static routes from .bat files and URLs
+• Manage DNS records for local domain resolution  
+• Configure WireGuard (AWG) VPN connections
+• Clean up known hosts with pattern matching
+• Execute custom router commands directly
+• Works with both local IP and KeenDNS addresses
+
+Examples:
+  # Show all available interfaces
+  gokeenapi show-interfaces --config config.yaml
+
+  # Add routes from configuration
+  gokeenapi add-routes --config config.yaml
+
+  # Set up WireGuard connection
+  gokeenapi add-awg --config config.yaml --conf-file vpn.conf
+
+For detailed command help, use: gokeenapi [command] --help`
+
+	rootCmd.PersistentFlags().Bool("debug", false,
+		`Enable debug mode with verbose logging.
+Shows detailed API requests, responses, and internal operations.
+Useful for troubleshooting connection or configuration issues.`)
+	rootCmd.PersistentFlags().StringVar(&configFile, "config", "",
+		`Path to YAML configuration file (required).
+Contains router connection details and operation settings.
+Can also be set via GOKEENAPI_CONFIG environment variable.`)
+
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		// completion and help commands should run without any checks and init
 		commandsToSkip := []string{CmdCompletion, CmdHelp}

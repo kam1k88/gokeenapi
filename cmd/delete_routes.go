@@ -15,13 +15,40 @@ func newDeleteRoutesCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     CmdDeleteRoutes,
 		Aliases: AliasesDeleteRoutes,
-		Short:   "Delete static routes in Keenetic router",
+		Short:   "Remove routing rules from specified interfaces",
+		Long: `Delete static routes from your Keenetic router interfaces.
+
+This command removes user-defined static routes from specified interfaces. By default,
+it processes all interfaces defined in your configuration file. You can target a 
+specific interface using the --interface-id flag.
+
+The command will:
+1. List all routes to be deleted
+2. Ask for confirmation (unless --force is used)
+3. Delete the confirmed routes
+
+Examples:
+  # Delete routes from all interfaces in config
+  gokeenapi delete-routes --config config.yaml
+
+  # Delete routes from specific interface
+  gokeenapi delete-routes --config config.yaml --interface-id Wireguard0
+
+  # Delete without confirmation prompt
+  gokeenapi delete-routes --config config.yaml --force
+
+Safety: Only user-defined static routes are deleted. System routes remain untouched.`,
 	}
 
 	var interfaceId string
 	var force bool
-	cmd.Flags().StringVar(&interfaceId, "interface-id", "", "Keenetic interface ID to delete static routes on, optional")
-	cmd.Flags().BoolVar(&force, "force", false, "Delete without confirmation")
+	cmd.Flags().StringVar(&interfaceId, "interface-id", "",
+		`Target a specific Keenetic interface ID for route deletion.
+If not specified, processes all interfaces from the config file.
+Use 'show-interfaces' to list available interface IDs.`)
+	cmd.Flags().BoolVar(&force, "force", false,
+		`Skip confirmation prompt and delete routes immediately.
+Use with caution as this bypasses the safety confirmation.`)
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		var interfaces []string

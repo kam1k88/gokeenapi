@@ -17,8 +17,12 @@ import (
 type keeneticInterface struct {
 }
 
-var Interface keeneticInterface
+var (
+	// Interface provides network interface management functionality for the router
+	Interface keeneticInterface
+)
 
+// GetInterfaceViaRciShowInterfaces retrieves detailed information about a specific interface
 func (*keeneticInterface) GetInterfaceViaRciShowInterfaces(interfaceId string) (gokeenrestapimodels.RciShowInterface, error) {
 	var myInterface gokeenrestapimodels.RciShowInterface
 	body, err := Common.ExecuteGetSubPath(fmt.Sprintf("/rci/show/interface/%v", interfaceId))
@@ -29,6 +33,7 @@ func (*keeneticInterface) GetInterfaceViaRciShowInterfaces(interfaceId string) (
 	return myInterface, err
 }
 
+// GetInterfaceViaRciShowScInterfaces retrieves system configuration details for a specific interface
 func (*keeneticInterface) GetInterfaceViaRciShowScInterfaces(interfaceId string) (gokeenrestapimodels.RciShowScInterface, error) {
 	var myInterface gokeenrestapimodels.RciShowScInterface
 	body, err := Common.ExecuteGetSubPath(fmt.Sprintf("/rci/show/sc/interface/%v", interfaceId))
@@ -39,6 +44,7 @@ func (*keeneticInterface) GetInterfaceViaRciShowScInterfaces(interfaceId string)
 	return myInterface, err
 }
 
+// GetInterfacesViaRciShowInterfaces retrieves all interfaces with optional type filtering and caching
 func (*keeneticInterface) GetInterfacesViaRciShowInterfaces(useCache bool, interfaceTypes ...string) (map[string]gokeenrestapimodels.RciShowInterface, error) {
 	var interfaces map[string]gokeenrestapimodels.RciShowInterface
 	if useCache {
@@ -72,6 +78,7 @@ func (*keeneticInterface) GetInterfacesViaRciShowInterfaces(useCache bool, inter
 	return realInterfaces, nil
 }
 
+// GetInterfacesViaRciShowScInterfaces retrieves system configuration for all or specified interfaces
 func (*keeneticInterface) GetInterfacesViaRciShowScInterfaces(ids ...string) (map[string]gokeenrestapimodels.RciShowScInterface, error) {
 	var interfaces map[string]gokeenrestapimodels.RciShowScInterface
 	err := gokeenspinner.WrapWithSpinner(fmt.Sprintf("Fetching %v", color.CyanString("interfaces")), func() error {
@@ -97,6 +104,7 @@ func (*keeneticInterface) GetInterfacesViaRciShowScInterfaces(ids ...string) (ma
 	return realInterfaces, nil
 }
 
+// PrintInfoAboutInterfaces displays formatted information about interfaces to the console
 func (*keeneticInterface) PrintInfoAboutInterfaces(interfaces map[string]gokeenrestapimodels.RciShowInterface) {
 	for k, interfaceDetails := range interfaces {
 		gokeenlog.Infof("Interface '%v':", color.BlueString(k))
@@ -113,6 +121,7 @@ func (*keeneticInterface) PrintInfoAboutInterfaces(interfaces map[string]gokeenr
 
 }
 
+// WaitUntilInterfaceIsUp waits up to 60 seconds for an interface to become fully operational
 func (*keeneticInterface) WaitUntilInterfaceIsUp(interfaceId string) error {
 	err := gokeenspinner.WrapWithSpinner(fmt.Sprintf("Waiting 60s until %v interface is up, connected to peers and working", interfaceId), func() error {
 		deadline := time.Now().Add(time.Second * 60)
@@ -131,6 +140,7 @@ func (*keeneticInterface) WaitUntilInterfaceIsUp(interfaceId string) error {
 	return err
 }
 
+// UpInterface brings the specified interface up (enables it)
 func (*keeneticInterface) UpInterface(interfaceId string) error {
 	var parseSlice []gokeenrestapimodels.ParseRequest
 	parseSlice = append(parseSlice, gokeenrestapimodels.ParseRequest{
@@ -146,6 +156,7 @@ func (*keeneticInterface) UpInterface(interfaceId string) error {
 	return err
 }
 
+// SetGlobalIpInInterface configures global IP routing for the specified interface
 func (*keeneticInterface) SetGlobalIpInInterface(interfaceId string, global bool) error {
 	var parseSlice []gokeenrestapimodels.ParseRequest
 	val := "ip global auto"

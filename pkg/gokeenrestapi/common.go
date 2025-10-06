@@ -28,7 +28,8 @@ import (
 var (
 	restyClient          *resty.Client
 	cleanedOldCacheFiles bool
-	Common               keeneticCommon
+	// Common provides core API functionality for authentication and router communication
+	Common keeneticCommon
 )
 
 type keeneticCommon struct {
@@ -131,6 +132,8 @@ func (c *keeneticCommon) writeAuthCookie(cookie string) error {
 	return cache.Save()
 }
 
+// Auth authenticates with the Keenetic router using configured credentials
+// Handles the router's challenge-response authentication mechanism and caches the session
 func (c *keeneticCommon) Auth() error {
 	err := gokeenspinner.WrapWithSpinner(fmt.Sprintf("Authorizing in %v", color.CyanString("Keenetic")), func() error {
 		response, err := c.GetApiClient().R().Get("/auth")
@@ -201,6 +204,7 @@ func (c *keeneticCommon) Auth() error {
 	return nil
 }
 
+// Version retrieves the router's version information including model and OS version
 func (c *keeneticCommon) Version() (gokeenrestapimodels.Version, error) {
 	b, err := c.ExecuteGetSubPath("/rci/show/version")
 	if err != nil {
@@ -211,6 +215,8 @@ func (c *keeneticCommon) Version() (gokeenrestapimodels.Version, error) {
 	return version, err
 }
 
+// ExecutePostParse executes one or more CLI commands on the router via RCI interface
+// Automatically batches commands in groups of 50 for optimal performance
 func (c *keeneticCommon) ExecutePostParse(parse ...gokeenrestapimodels.ParseRequest) ([]gokeenrestapimodels.ParseResponse, error) {
 	parseCopy := parse
 	var parseResponses []gokeenrestapimodels.ParseResponse
@@ -253,6 +259,7 @@ func (c *keeneticCommon) ExecutePostParse(parse ...gokeenrestapimodels.ParseRequ
 	return parseResponses, mErr
 }
 
+// ExecuteGetSubPath performs a GET request to the specified API endpoint
 func (c *keeneticCommon) ExecuteGetSubPath(path string) ([]byte, error) {
 	response, err := c.GetApiClient().R().Get(path)
 	if err != nil {
@@ -264,6 +271,7 @@ func (c *keeneticCommon) ExecuteGetSubPath(path string) ([]byte, error) {
 	return []byte{}, errors.New("no response from keenetic api")
 }
 
+// ExecutePostSubPath performs a POST request to the specified API endpoint with a request body
 func (c *keeneticCommon) ExecutePostSubPath(path string, body any) ([]byte, error) {
 	response, err := c.GetApiClient().R().SetBody(body).Post(path)
 	if err != nil {
@@ -275,6 +283,7 @@ func (c *keeneticCommon) ExecutePostSubPath(path string, body any) ([]byte, erro
 	return []byte{}, errors.New("no response from keenetic api")
 }
 
+// GetApiClient returns a configured HTTP client for API requests with authentication
 func (c *keeneticCommon) GetApiClient() *resty.Client {
 	if restyClient == nil {
 		restyClient = resty.New()
@@ -294,6 +303,7 @@ func (c *keeneticCommon) GetApiClient() *resty.Client {
 	return restyClient
 }
 
+// ShowRunningConfig retrieves the current running configuration from the router
 func (c *keeneticCommon) ShowRunningConfig() (gokeenrestapimodels.RunningConfig, error) {
 	var runningConfig gokeenrestapimodels.RunningConfig
 	err := gokeenspinner.WrapWithSpinner(fmt.Sprintf("Fetching %v", color.CyanString("running-config")), func() error {
@@ -307,6 +317,7 @@ func (c *keeneticCommon) ShowRunningConfig() (gokeenrestapimodels.RunningConfig,
 	return runningConfig, err
 }
 
+// SaveConfigParseRequest returns a parse request to save the current configuration
 func (c *keeneticCommon) SaveConfigParseRequest() gokeenrestapimodels.ParseRequest {
 	return gokeenrestapimodels.ParseRequest{Parse: "system configuration save"}
 }

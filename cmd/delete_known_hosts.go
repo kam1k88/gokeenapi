@@ -14,14 +14,49 @@ func newDeleteKnownHostsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     CmdDeleteKnownHosts,
 		Aliases: AliasesDeleteKnownHosts,
-		Short:   "Delete known hosts by name or MAC using regex pattern",
+		Short:   "Clean up device list using name or MAC patterns",
+		Long: `Delete known hosts from your Keenetic router using regex pattern matching.
+
+This command removes devices from the router's known hosts list (hotspot database)
+based on either hostname or MAC address patterns. Use regex patterns to match
+multiple hosts at once or target specific devices.
+
+The command will:
+1. Retrieve all known hosts from the router
+2. Apply the regex pattern to match hosts
+3. Display matching hosts for review
+4. Ask for confirmation (unless --force is used)
+5. Delete the confirmed hosts
+
+Examples:
+  # Delete hosts with names containing "guest"
+  gokeenapi delete-known-hosts --config config.yaml --name-pattern ".*guest.*"
+
+  # Delete hosts with specific MAC prefix
+  gokeenapi delete-known-hosts --config config.yaml --mac-pattern "^aa:bb:cc:.*"
+
+  # Delete without confirmation
+  gokeenapi delete-known-hosts --config config.yaml --name-pattern "temp.*" --force
+
+  # Delete hosts with exact name match
+  gokeenapi delete-known-hosts --config config.yaml --name-pattern "^old-device$"
+
+Note: Exactly one of --name-pattern or --mac-pattern must be specified.`,
 	}
 
 	var namePattern, macPattern string
 	var force bool
-	cmd.Flags().StringVar(&namePattern, "name-pattern", "", "Regex pattern to match host names for deletion")
-	cmd.Flags().StringVar(&macPattern, "mac-pattern", "", "Regex pattern to match host MAC addresses for deletion")
-	cmd.Flags().BoolVar(&force, "force", false, "Delete without confirmation")
+	cmd.Flags().StringVar(&namePattern, "name-pattern", "",
+		`Regex pattern to match against host names for deletion.
+Examples: ".*guest.*" (contains guest), "^temp" (starts with temp)
+Cannot be used together with --mac-pattern.`)
+	cmd.Flags().StringVar(&macPattern, "mac-pattern", "",
+		`Regex pattern to match against host MAC addresses for deletion.
+Examples: "^aa:bb:cc:" (MAC prefix), ".*:.*:.*:dd:ee:ff$" (MAC suffix)
+Cannot be used together with --name-pattern.`)
+	cmd.Flags().BoolVar(&force, "force", false,
+		`Skip confirmation prompt and delete hosts immediately.
+Use with caution as this bypasses the safety confirmation.`)
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		if (namePattern == "") == (macPattern == "") {

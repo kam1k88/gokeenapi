@@ -17,11 +17,34 @@ func newDeleteDnsRecordsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     CmdDeleteDnsRecords,
 		Aliases: AliasesDeleteDnsRecords,
-		Short:   "Delete static dns records in Keenetic router",
+		Short:   "Remove custom DNS entries from your router",
+		Long: `Delete static DNS records from your Keenetic router's local DNS resolver.
+
+This command removes DNS records that match the entries defined in your configuration
+file's 'dns.records' section. Only records that currently exist in the router 
+configuration will be deleted.
+
+The command will:
+1. Check current router configuration for matching DNS records
+2. List all records to be deleted
+3. Ask for confirmation (unless --force is used)
+4. Remove the confirmed DNS records
+
+Examples:
+  # Delete DNS records matching config file entries
+  gokeenapi delete-dns-records --config config.yaml
+
+  # Delete without confirmation prompt
+  gokeenapi delete-dns-records --config config.yaml --force
+
+Safety: Only DNS records that exactly match your config file entries are deleted.
+Other DNS records in the router remain untouched.`,
 	}
 
 	var force bool
-	cmd.Flags().BoolVar(&force, "force", false, "Delete without confirmation")
+	cmd.Flags().BoolVar(&force, "force", false,
+		`Skip confirmation prompt and delete DNS records immediately.
+Use with caution as this bypasses the safety confirmation.`)
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		runningConfig, err := gokeenrestapi.Common.ShowRunningConfig()
