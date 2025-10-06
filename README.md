@@ -14,6 +14,12 @@
 
 *Tired of clicking through Keenetic web interface? Automate your Keenetic router management with simple CLI commands.*
 
+<div align="center">
+
+### [🇷🇺 **Русская версия документации** 🇷🇺](README_RU.md)
+
+</div>
+
 [🚀 Quick Start](#-quick-start) • [📖 Documentation](#-commands) • [🎨 GUI Version](https://github.com/Noksa/gokeenapiui) • [🤝 Contributing](#-contributing)
 
 </div>
