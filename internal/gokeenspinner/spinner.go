@@ -2,14 +2,32 @@ package gokeenspinner
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/briandowns/spinner"
+	"golang.org/x/term"
 )
 
 func WrapWithSpinner(spinnerText string, f func() error) error {
-	s := spinner.New(spinner.CharSets[70], 100*time.Millisecond)
 	startTime := time.Now()
+
+	// Check if we're in an interactive terminal
+	if !term.IsTerminal(int(os.Stdout.Fd())) {
+		// Non-interactive: just print start message and run function
+		fmt.Printf("⌛   %v ...\n", spinnerText)
+		err := f()
+		duration := getPrettyFormatedDuration(time.Since(startTime).Round(time.Millisecond))
+		if err != nil {
+			fmt.Printf("⛔   %v failed after %v\n", spinnerText, duration)
+		} else {
+			fmt.Printf("✅   %v completed after %v\n", spinnerText, duration)
+		}
+		return err
+	}
+
+	// Interactive terminal: use spinner
+	s := spinner.New(spinner.CharSets[70], 100*time.Millisecond)
 	s.Start()
 	s.PostUpdate = func(s *spinner.Spinner) {
 		s.Prefix = fmt.Sprintf("⌛   %v ... %s	", spinnerText, getPrettyFormatedDuration(time.Since(startTime).Round(time.Millisecond)))

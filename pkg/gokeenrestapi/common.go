@@ -92,8 +92,8 @@ func (c *keeneticCommon) getKeeneticCacheFile() (keeneticCacheFile, error) {
 		cleanedOldCacheFiles = true
 	}
 	bHash := md5.Sum([]byte(fmt.Sprintf("%v-%v-%v", config.Cfg.Keenetic.URL, config.Cfg.Keenetic.Login, config.Cfg.Keenetic.Password)))
-	hash := hex.EncodeToString(bHash[:])
-	keeeticFile := path.Join(gokeenDir, fmt.Sprintf("%v.json", hash))
+	hashString := fmt.Sprintf("%x", bHash)
+	keeeticFile := path.Join(gokeenDir, fmt.Sprintf("%v.json", hashString))
 	_, statErr := os.Stat(keeeticFile)
 	if statErr != nil {
 		if !errors.Is(statErr, os.ErrNotExist) {
@@ -132,62 +132,67 @@ func (c *keeneticCommon) writeAuthCookie(cookie string) error {
 	return cache.Save()
 }
 
+// performAuth handles the actual authentication process with a specific client
+func (c *keeneticCommon) performAuth(client *resty.Client) error {
+	response, err := client.R().Get("/auth")
+	var mErr error
+	mErr = multierr.Append(mErr, err)
+	if response != nil && response.StatusCode() == http.StatusUnauthorized {
+		realm := response.Header().Get("x-ndm-realm")
+		token := response.Header().Get("x-ndm-challenge")
+		setCookieStr := response.Header().Get("set-cookie")
+		setCookieStrSplitted := strings.Split(setCookieStr, ";")
+		cookieToSet := setCookieStrSplitted[0]
+		err = c.writeAuthCookie(cookieToSet)
+		if err != nil {
+			mErr = multierr.Append(mErr, err)
+			return mErr
+		}
+		secondRequest := client.R()
+		md5Hash := md5.New()
+		_, err = fmt.Fprintf(md5Hash, "%v:%v:%v", config.Cfg.Keenetic.Login, realm, config.Cfg.Keenetic.Password)
+		if err != nil {
+			mErr = multierr.Append(mErr, err)
+			return mErr
+		}
+		md5HashArg := md5Hash.Sum(nil)
+		md5HashStr := hex.EncodeToString(md5HashArg)
+		sha256Hash := sha256.New()
+		_, err = fmt.Fprintf(sha256Hash, "%v%v", token, md5HashStr)
+		if err != nil {
+			mErr = multierr.Append(mErr, err)
+			return mErr
+		}
+		sha256HashArg := sha256Hash.Sum(nil)
+		sha256HashStr := hex.EncodeToString(sha256HashArg)
+		secondRequest.SetBody(struct {
+			Login    string `json:"login"`
+			Password string `json:"password"`
+		}{
+			Login:    config.Cfg.Keenetic.Login,
+			Password: sha256HashStr,
+		})
+		// set cookie globally
+		client.Header.Set("Cookie", cookieToSet)
+		secondRequest.Header.Set("Cookie", cookieToSet)
+		response, err = secondRequest.Post("/auth")
+		if err != nil {
+			mErr = multierr.Append(mErr, err)
+			return mErr
+		}
+		if response.StatusCode() == http.StatusUnauthorized {
+			mErr = multierr.Append(mErr, errors.New("can't authorize in keenetic. Verify your login and password"))
+			return mErr
+		}
+	}
+	return mErr
+}
+
 // Auth authenticates with the Keenetic router using configured credentials
 // Handles the router's challenge-response authentication mechanism and caches the session
 func (c *keeneticCommon) Auth() error {
 	err := gokeenspinner.WrapWithSpinner(fmt.Sprintf("Authorizing in %v", color.CyanString("Keenetic")), func() error {
-		response, err := c.GetApiClient().R().Get("/auth")
-		var mErr error
-		mErr = multierr.Append(mErr, err)
-		if response != nil && response.StatusCode() == http.StatusUnauthorized {
-			realm := response.Header().Get("x-ndm-realm")
-			token := response.Header().Get("x-ndm-challenge")
-			setCookieStr := response.Header().Get("set-cookie")
-			setCookieStrSplitted := strings.Split(setCookieStr, ";")
-			cookieToSet := setCookieStrSplitted[0]
-			err = c.writeAuthCookie(cookieToSet)
-			if err != nil {
-				mErr = multierr.Append(mErr, err)
-				return mErr
-			}
-			secondRequest := c.GetApiClient().R()
-			// cookie should not be set here if we do authorization. It means that old cookie doesn't work anymore and we would get 401 with the old.
-			restyClient.Header.Del("Cookie")
-			secondRequest.Header.Del("Cookie")
-			md5Hash := md5.New()
-			_, err = fmt.Fprintf(md5Hash, "%v:%v:%v", config.Cfg.Keenetic.Login, realm, config.Cfg.Keenetic.Password)
-			if err != nil {
-				mErr = multierr.Append(mErr, err)
-				return mErr
-			}
-			md5HashArg := md5Hash.Sum(nil)
-			md5HashStr := hex.EncodeToString(md5HashArg)
-			sha256Hash := sha256.New()
-			_, err = fmt.Fprintf(sha256Hash, "%v%v", token, md5HashStr)
-			if err != nil {
-				mErr = multierr.Append(mErr, err)
-				return mErr
-			}
-			sha256HashArg := sha256Hash.Sum(nil)
-			sha256HashStr := hex.EncodeToString(sha256HashArg)
-			secondRequest.SetBody(struct {
-				Login    string `json:"login"`
-				Password string `json:"password"`
-			}{
-				Login:    config.Cfg.Keenetic.Login,
-				Password: sha256HashStr,
-			})
-			response, err = secondRequest.Post("/auth")
-			if err != nil {
-				mErr = multierr.Append(mErr, err)
-				return mErr
-			}
-			if response.StatusCode() == http.StatusUnauthorized {
-				mErr = multierr.Append(mErr, errors.New("can't authorize in keenetic. Verify your login and password"))
-				return mErr
-			}
-		}
-		return mErr
+		return c.performAuth(c.GetApiClient())
 	})
 	if err != nil {
 		return err
@@ -283,13 +288,43 @@ func (c *keeneticCommon) ExecutePostSubPath(path string, body any) ([]byte, erro
 	return []byte{}, errors.New("no response from keenetic api")
 }
 
+// authRetryMiddleware handles 401 responses by re-authenticating and retrying the request
+func (c *keeneticCommon) authRetryMiddleware(client *resty.Client, resp *resty.Response) error {
+	if resp.StatusCode() == http.StatusUnauthorized && resp.Request.RawRequest.URL.Path != "/auth" {
+		// Clear the current cookie and perform direct authentication
+		client.Header.Del("Cookie")
+
+		if err := c.performAuth(client); err != nil {
+			return err
+		}
+
+		// Retry the original request with new authentication
+
+		retryReq := resp.Request
+		retryReq.Header.Del("Cookie")
+		retryReq.Header.Set("Cookie", client.Header.Get("Cookie"))
+
+		retryResp, err := retryReq.Execute(resp.Request.Method, resp.Request.URL)
+		if err != nil {
+			return err
+		}
+
+		// Replace the response content with the retry response
+		*resp = *retryResp
+	}
+	return nil
+}
+
 // GetApiClient returns a configured HTTP client for API requests with authentication
 func (c *keeneticCommon) GetApiClient() *resty.Client {
 	if restyClient == nil {
 		restyClient = resty.New()
 		restyClient.SetDisableWarn(true)
+		restyClient.SetCookieJar(nil)
+		restyClient.OnAfterResponse(c.authRetryMiddleware)
+		restyClient.RetryCount = 3
 	}
-	// do it each time in case of GUI version
+	// do it each time to have clean client
 	restyClient.SetBaseURL(config.Cfg.Keenetic.URL)
 	if restyClient.Header.Get("Cookie") == "" {
 		cookie, err := c.getAuthCookie()
