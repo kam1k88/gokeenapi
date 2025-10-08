@@ -10,12 +10,5 @@ type RciIpRoute struct {
 
 type RciShowIpRoute struct {
 	Destination string `json:"destination,omitempty"`
-	Gateway     string `json:"gateway,omitempty"`
 	Interface   string `json:"interface,omitempty"`
-	Metric      int    `json:"metric,omitempty"`
-	Flags       string `json:"flags,omitempty"`
-	Rejecting   bool   `json:"rejecting,omitempty"`
-	Proto       string `json:"proto,omitempty"`
-	Floating    bool   `json:"floating,omitempty"`
-	Static      bool   `json:"static,omitempty"`
 }
