@@ -3,6 +3,7 @@ package gokeenrestapi
 import (
 	"encoding/json"
 	"fmt"
+	"net"
 	"os"
 	"regexp"
 	"strings"
@@ -42,6 +43,32 @@ func (*keeneticIp) GetAllHotspots() (gokeenrestapimodels.RciShowIpHotspot, error
 		gokeenlog.InfoSubStepf("Found %v hosts", color.BlueString("%v", len(hotspot.Host)))
 	}
 	return hotspot, err
+}
+
+// ShowIpRoute retrieves all routes from the router's routing table
+func (*keeneticIp) ShowIpRoute(interfaceId string) ([]gokeenrestapimodels.RciShowIpRoute, error) {
+	var routes []gokeenrestapimodels.RciShowIpRoute
+	msg := ""
+	if interfaceId != "" {
+		msg = fmt.Sprintf(" for %v interface", color.BlueString(interfaceId))
+	}
+	err := gokeenspinner.WrapWithSpinner(fmt.Sprintf("Fetching %v table%v", color.CyanString("ip routing"), msg), func() error {
+		body, err := Common.ExecuteGetSubPath("/rci/show/ip/route")
+		if err != nil {
+			return err
+		}
+		return json.Unmarshal(body, &routes)
+	})
+	var realRoutes []gokeenrestapimodels.RciShowIpRoute
+	for _, route := range routes {
+		if route.Interface == interfaceId || interfaceId == "" {
+			realRoutes = append(realRoutes, route)
+		}
+	}
+	//if err == nil {
+	//	gokeenlog.InfoSubStepf("Found %v routes", color.BlueString("%v", len(realRoutes)))
+	//}
+	return realRoutes, err
 }
 
 // DeleteKnownHosts removes devices from the router's known hosts list by MAC address
@@ -145,6 +172,10 @@ func (*keeneticIp) DeleteDnsRecords(domains []string) error {
 
 // AddRoutesFromBatFile parses a local .bat file and adds the contained routes to the specified interface
 func (*keeneticIp) AddRoutesFromBatFile(batFile string, interfaceId string) error {
+	routes, err := Ip.ShowIpRoute(interfaceId)
+	if err != nil {
+		return err
+	}
 	matcher := regexp.MustCompile(regex)
 	b, err := os.ReadFile(batFile)
 	if err != nil {
@@ -160,17 +191,29 @@ func (*keeneticIp) AddRoutesFromBatFile(batFile string, interfaceId string) erro
 		}
 		sl := matcher.FindStringSubmatch(line)
 		if len(sl) != 3 {
-			gokeenlog.Infof("Skipping line with invalid format: '%v'", line)
+			gokeenlog.InfoSubStepf("Skipping line with invalid format: '%v'", line)
 			gokeenlog.InfoSubStepf("It doesn't satisfy regexp: '%v'", regex)
 			mErr = multierr.Append(mErr, fmt.Errorf("line has invalid format: '%v'", line))
 			continue
 		}
 		ip := sl[1]
 		mask := sl[2]
+		contains, err := checkInterfaceContainsRoute(ip, mask, interfaceId, routes)
+		if err != nil {
+			return err
+		}
+		if contains {
+			//gokeenlog.Infof("Skipping line with already existing route: '%v'", line)
+			continue
+		}
 		parseSlice = append(parseSlice, gokeenrestapimodels.ParseRequest{Parse: fmt.Sprintf("ip route %v %v %v auto", ip, mask, interfaceId)})
 	}
+	if len(parseSlice) == 0 {
+		gokeenlog.InfoSubStepf("No need to add new static routes from %v file", color.CyanString("%v", batFile))
+		return nil
+	}
 	var parseResponse []gokeenrestapimodels.ParseResponse
-	mErr = multierr.Append(mErr, gokeenspinner.WrapWithSpinner(fmt.Sprintf("Adding %v static routes from %v file to %v interface", color.BlueString("%v", len(parseSlice)), color.CyanString(batFile), color.BlueString(interfaceId)), func() error {
+	mErr = multierr.Append(mErr, gokeenspinner.WrapWithSpinner(fmt.Sprintf("Adding new %v static routes from %v file to %v interface", color.CyanString("%v", len(parseSlice)), color.CyanString(batFile), color.BlueString(interfaceId)), func() error {
 		var executeErr error
 		parseResponse, executeErr = Common.ExecutePostParse(parseSlice...)
 		return executeErr
@@ -181,11 +224,14 @@ func (*keeneticIp) AddRoutesFromBatFile(batFile string, interfaceId string) erro
 
 // AddRoutesFromBatUrl downloads a .bat file from a URL and adds the contained routes to the specified interface
 func (*keeneticIp) AddRoutesFromBatUrl(url string, interfaceId string) error {
+	routes, err := Ip.ShowIpRoute(interfaceId)
+	if err != nil {
+		return err
+	}
 	matcher := regexp.MustCompile(regex)
 	rClient := resty.New()
 	rClient.SetDisableWarn(true)
 	rClient.SetTimeout(time.Second * 5)
-	var err error
 	var response *resty.Response
 	err = gokeenspinner.WrapWithSpinner(fmt.Sprintf("Fetching %v url", color.CyanString(url)), func() error {
 		response, err = rClient.R().Get(url)
@@ -204,21 +250,78 @@ func (*keeneticIp) AddRoutesFromBatUrl(url string, interfaceId string) error {
 		}
 		sl := matcher.FindStringSubmatch(line)
 		if len(sl) != 3 {
-			gokeenlog.Infof("Skipping line with invalid format: '%v'", line)
+			gokeenlog.InfoSubStepf("Skipping line with invalid format: '%v'", line)
 			gokeenlog.InfoSubStepf("It doesn't satisfy regexp: '%v'", regex)
 			mErr = multierr.Append(mErr, fmt.Errorf("line has invalid format: '%v'", line))
 			continue
 		}
 		ip := sl[1]
 		mask := sl[2]
+		contains, err := checkInterfaceContainsRoute(ip, mask, interfaceId, routes)
+		if err != nil {
+			return err
+		}
+		if contains {
+			//gokeenlog.Infof("Skipping line with already existing route: '%v'", line)
+			continue
+		}
 		parseSlice = append(parseSlice, gokeenrestapimodels.ParseRequest{Parse: fmt.Sprintf("ip route %v %v %v auto", ip, mask, interfaceId)})
 	}
+	if len(parseSlice) == 0 {
+		gokeenlog.InfoSubStepf("No need to add new static routes from %v url", color.CyanString("%v", url))
+		return nil
+	}
 	var parseResponse []gokeenrestapimodels.ParseResponse
-	mErr = multierr.Append(mErr, gokeenspinner.WrapWithSpinner(fmt.Sprintf("Adding %v static routes to %v interface", color.BlueString("%v", len(parseSlice)), color.BlueString(interfaceId)), func() error {
+	mErr = multierr.Append(mErr, gokeenspinner.WrapWithSpinner(fmt.Sprintf("Adding new %v static routes to %v interface", color.CyanString("%v", len(parseSlice)), color.BlueString(interfaceId)), func() error {
 		var executeErr error
 		parseResponse, executeErr = Common.ExecutePostParse(parseSlice...)
 		return executeErr
 	}))
 	gokeenlog.PrintParseResponse(parseResponse)
 	return mErr
+}
+
+func maskToCIDR(mask string) (int, error) {
+	ip := net.ParseIP(mask)
+	if ip == nil {
+		return 0, fmt.Errorf("invalid IP")
+	}
+
+	ipv4Mask := net.IPMask(ip.To4())
+	ones, _ := ipv4Mask.Size()
+	return ones, nil
+}
+
+func checkInterfaceContainsRoute(routeIp, mask, interfaceId string, existingRoutes []gokeenrestapimodels.RciShowIpRoute) (bool, error) {
+	cidr, err := maskToCIDR(mask)
+	if err != nil {
+		return false, err
+	}
+
+	_, newNetwork, err := net.ParseCIDR(fmt.Sprintf("%v/%d", routeIp, cidr))
+	if err != nil {
+		return false, err
+	}
+
+	for _, route := range existingRoutes {
+		if route.Interface != interfaceId {
+			continue
+		}
+
+		// Check exact match
+		destination := fmt.Sprintf("%v/%d", routeIp, cidr)
+		if route.Destination == destination {
+			return true, nil
+		}
+
+		// Check if existing route covers the new route
+		_, existingNetwork, err := net.ParseCIDR(route.Destination)
+		if err != nil {
+			continue
+		}
+		if existingNetwork.Contains(newNetwork.IP) {
+			return true, nil
+		}
+	}
+	return false, nil
 }
