@@ -11,6 +11,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/go-resty/resty/v2"
+	"github.com/noksa/gokeenapi/internal/gokeencache"
 	"github.com/noksa/gokeenapi/internal/gokeenlog"
 	"github.com/noksa/gokeenapi/internal/gokeenspinner"
 	"github.com/noksa/gokeenapi/pkg/gokeenrestapimodels"
@@ -47,7 +48,10 @@ func (*keeneticIp) GetAllHotspots() (gokeenrestapimodels.RciShowIpHotspot, error
 
 // ShowIpRoute retrieves all routes from the router's routing table
 func (*keeneticIp) ShowIpRoute(interfaceId string) ([]gokeenrestapimodels.RciShowIpRoute, error) {
-	var routes []gokeenrestapimodels.RciShowIpRoute
+	routes := gokeencache.GetRciShowIpRoute(interfaceId)
+	if routes != nil {
+		return routes, nil
+	}
 	msg := ""
 	if interfaceId != "" {
 		msg = fmt.Sprintf(" for %v interface", color.BlueString(interfaceId))
@@ -68,6 +72,7 @@ func (*keeneticIp) ShowIpRoute(interfaceId string) ([]gokeenrestapimodels.RciSho
 	//if err == nil {
 	//	gokeenlog.InfoSubStepf("Found %v routes", color.BlueString("%v", len(realRoutes)))
 	//}
+	gokeencache.SetRciShowIpRoute(realRoutes, interfaceId)
 	return realRoutes, err
 }
 
@@ -212,6 +217,7 @@ func (*keeneticIp) AddRoutesFromBatFile(batFile string, interfaceId string) erro
 		gokeenlog.InfoSubStepf("No need to add new static routes from %v file", color.CyanString("%v", batFile))
 		return nil
 	}
+	gokeencache.SetRciShowIpRoute(nil, interfaceId)
 	var parseResponse []gokeenrestapimodels.ParseResponse
 	mErr = multierr.Append(mErr, gokeenspinner.WrapWithSpinner(fmt.Sprintf("Adding new %v static routes from %v file to %v interface", color.CyanString("%v", len(parseSlice)), color.CyanString(batFile), color.BlueString(interfaceId)), func() error {
 		var executeErr error
@@ -271,6 +277,7 @@ func (*keeneticIp) AddRoutesFromBatUrl(url string, interfaceId string) error {
 		gokeenlog.InfoSubStepf("No need to add new static routes from %v url", color.CyanString("%v", url))
 		return nil
 	}
+	gokeencache.SetRciShowIpRoute(nil, interfaceId)
 	var parseResponse []gokeenrestapimodels.ParseResponse
 	mErr = multierr.Append(mErr, gokeenspinner.WrapWithSpinner(fmt.Sprintf("Adding new %v static routes to %v interface", color.CyanString("%v", len(parseSlice)), color.BlueString(interfaceId)), func() error {
 		var executeErr error

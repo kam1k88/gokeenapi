@@ -1,6 +1,8 @@
 package gokeencache
 
 import (
+	"fmt"
+
 	"github.com/noksa/gokeenapi/pkg/config"
 	"github.com/noksa/gokeenapi/pkg/gokeenrestapimodels"
 	"github.com/patrickmn/go-cache"
@@ -9,6 +11,7 @@ import (
 const (
 	rciShowInterfaces = "rci_show_interfaces"
 	runtimeConfig     = "runtime_config"
+	rciShowIpRoute    = "rci_show_ip_route"
 )
 
 var (
@@ -27,6 +30,24 @@ func GetRuntimeConfig() *config.Runtime {
 		return cfg.(*config.Runtime)
 	}
 	return &config.Runtime{}
+}
+
+func SetRciShowIpRoute(routes []gokeenrestapimodels.RciShowIpRoute, interfaceId string) {
+	if interfaceId == "" {
+		interfaceId = "all"
+	}
+	c.Set(fmt.Sprintf("%v-%v", rciShowIpRoute, interfaceId), routes, cache.NoExpiration)
+}
+
+func GetRciShowIpRoute(interfaceId string) []gokeenrestapimodels.RciShowIpRoute {
+	if interfaceId == "" {
+		interfaceId = "all"
+	}
+	v, ok := c.Get(fmt.Sprintf("%v-%v", rciShowIpRoute, interfaceId))
+	if !ok {
+		return nil
+	}
+	return v.([]gokeenrestapimodels.RciShowIpRoute)
 }
 
 func SetRciShowInterfaces(m map[string]gokeenrestapimodels.RciShowInterface) {
