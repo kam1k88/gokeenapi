@@ -304,6 +304,10 @@ func checkInterfaceContainsRoute(routeIp, mask, interfaceId string, existingRout
 	}
 
 	for _, route := range existingRoutes {
+		// skip default 0.0.0.0/0
+		if strings.EqualFold(route.Destination, "0.0.0.0/0") {
+			continue
+		}
 		if route.Interface != interfaceId {
 			continue
 		}
