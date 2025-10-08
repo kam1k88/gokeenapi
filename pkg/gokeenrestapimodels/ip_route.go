@@ -7,3 +7,8 @@ type RciIpRoute struct {
 	Interface string `json:"interface"`
 	Auto      bool   `json:"auto"`
 }
+
+type RciShowIpRoute struct {
+	Destination string `json:"destination,omitempty"`
+	Interface   string `json:"interface,omitempty"`
+}
