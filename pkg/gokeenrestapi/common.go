@@ -137,52 +137,59 @@ func (c *keeneticCommon) performAuth(client *resty.Client) error {
 	response, err := client.R().Get("/auth")
 	var mErr error
 	mErr = multierr.Append(mErr, err)
-	if response != nil && response.StatusCode() == http.StatusUnauthorized {
-		realm := response.Header().Get("x-ndm-realm")
-		token := response.Header().Get("x-ndm-challenge")
-		setCookieStr := response.Header().Get("set-cookie")
-		setCookieStrSplitted := strings.Split(setCookieStr, ";")
-		cookieToSet := setCookieStrSplitted[0]
-		err = c.writeAuthCookie(cookieToSet)
-		if err != nil {
-			mErr = multierr.Append(mErr, err)
-			return mErr
-		}
-		secondRequest := client.R()
-		md5Hash := md5.New()
-		_, err = fmt.Fprintf(md5Hash, "%v:%v:%v", config.Cfg.Keenetic.Login, realm, config.Cfg.Keenetic.Password)
-		if err != nil {
-			mErr = multierr.Append(mErr, err)
-			return mErr
-		}
-		md5HashArg := md5Hash.Sum(nil)
-		md5HashStr := hex.EncodeToString(md5HashArg)
-		sha256Hash := sha256.New()
-		_, err = fmt.Fprintf(sha256Hash, "%v%v", token, md5HashStr)
-		if err != nil {
-			mErr = multierr.Append(mErr, err)
-			return mErr
-		}
-		sha256HashArg := sha256Hash.Sum(nil)
-		sha256HashStr := hex.EncodeToString(sha256HashArg)
-		secondRequest.SetBody(struct {
-			Login    string `json:"login"`
-			Password string `json:"password"`
-		}{
-			Login:    config.Cfg.Keenetic.Login,
-			Password: sha256HashStr,
-		})
-		// set cookie globally
-		client.Header.Set("Cookie", cookieToSet)
-		secondRequest.Header.Set("Cookie", cookieToSet)
-		response, err = secondRequest.Post("/auth")
-		if err != nil {
-			mErr = multierr.Append(mErr, err)
-			return mErr
-		}
-		if response.StatusCode() == http.StatusUnauthorized {
-			mErr = multierr.Append(mErr, errors.New("can't authorize in keenetic. Verify your login and password"))
-			return mErr
+	if response != nil {
+		switch response.StatusCode() {
+		case http.StatusUnauthorized:
+			realm := response.Header().Get("x-ndm-realm")
+			token := response.Header().Get("x-ndm-challenge")
+			setCookieStr := response.Header().Get("set-cookie")
+			setCookieStrSplitted := strings.Split(setCookieStr, ";")
+			cookieToSet := setCookieStrSplitted[0]
+			err = c.writeAuthCookie(cookieToSet)
+			if err != nil {
+				mErr = multierr.Append(mErr, err)
+				return mErr
+			}
+			secondRequest := client.R()
+			md5Hash := md5.New()
+			_, err = fmt.Fprintf(md5Hash, "%v:%v:%v", config.Cfg.Keenetic.Login, realm, config.Cfg.Keenetic.Password)
+			if err != nil {
+				mErr = multierr.Append(mErr, err)
+				return mErr
+			}
+			md5HashArg := md5Hash.Sum(nil)
+			md5HashStr := hex.EncodeToString(md5HashArg)
+			sha256Hash := sha256.New()
+			_, err = fmt.Fprintf(sha256Hash, "%v%v", token, md5HashStr)
+			if err != nil {
+				mErr = multierr.Append(mErr, err)
+				return mErr
+			}
+			sha256HashArg := sha256Hash.Sum(nil)
+			sha256HashStr := hex.EncodeToString(sha256HashArg)
+			secondRequest.SetBody(struct {
+				Login    string `json:"login"`
+				Password string `json:"password"`
+			}{
+				Login:    config.Cfg.Keenetic.Login,
+				Password: sha256HashStr,
+			})
+			// set cookie globally
+			client.Header.Set("Cookie", cookieToSet)
+			secondRequest.Header.Set("Cookie", cookieToSet)
+			response, err = secondRequest.Post("/auth")
+			if err != nil {
+				mErr = multierr.Append(mErr, err)
+				return mErr
+			}
+			if response.StatusCode() == http.StatusUnauthorized {
+				mErr = multierr.Append(mErr, errors.New("can't authorize in keenetic. Verify your login and password"))
+				return mErr
+			}
+		case http.StatusOK, http.StatusCreated, http.StatusAccepted:
+			return nil
+		default:
+			mErr = multierr.Append(mErr, fmt.Errorf("keenetic router is not available, status code: %v, status: %v", response.StatusCode(), response.Status()))
 		}
 	}
 	return mErr
@@ -355,4 +362,19 @@ func (c *keeneticCommon) ShowRunningConfig() (gokeenrestapimodels.RunningConfig,
 // SaveConfigParseRequest returns a parse request to save the current configuration
 func (c *keeneticCommon) SaveConfigParseRequest() gokeenrestapimodels.ParseRequest {
 	return gokeenrestapimodels.ParseRequest{Parse: "system configuration save"}
+}
+
+// EnsureSaveConfigAtEnd ensures SaveConfigParseRequest is at the end of parseSlice if not already present
+func (c *keeneticCommon) EnsureSaveConfigAtEnd(parseSlice []gokeenrestapimodels.ParseRequest) []gokeenrestapimodels.ParseRequest {
+	saveConfig := c.SaveConfigParseRequest()
+	if len(parseSlice) == 0 || parseSlice[len(parseSlice)-1].Parse != saveConfig.Parse {
+		parseSlice = append(parseSlice, saveConfig)
+	}
+	return parseSlice
+}
+
+func (c *keeneticCommon) SaveConfig() error {
+	parseRequest := c.SaveConfigParseRequest()
+	_, err := c.ExecutePostParse(parseRequest)
+	return err
 }

@@ -48,21 +48,20 @@ func (*keeneticIp) GetAllHotspots() (gokeenrestapimodels.RciShowIpHotspot, error
 
 // ShowIpRoute retrieves all routes from the router's routing table
 func (*keeneticIp) ShowIpRoute(interfaceId string) ([]gokeenrestapimodels.RciShowIpRoute, error) {
-	routes := gokeencache.GetRciShowIpRoute(interfaceId)
-	if routes != nil {
-		return routes, nil
-	}
-	msg := ""
-	if interfaceId != "" {
-		msg = fmt.Sprintf(" for %v interface", color.BlueString(interfaceId))
-	}
-	err := gokeenspinner.WrapWithSpinner(fmt.Sprintf("Fetching %v table%v", color.CyanString("ip routing"), msg), func() error {
-		body, err := Common.ExecuteGetSubPath("/rci/show/ip/route")
+	routes := gokeencache.GetRciShowIpRoute()
+	if routes == nil {
+		err := gokeenspinner.WrapWithSpinner(fmt.Sprintf("Fetching %v table", color.CyanString("ip routing")), func() error {
+			body, err := Common.ExecuteGetSubPath("/rci/show/ip/route")
+			if err != nil {
+				return err
+			}
+			return json.Unmarshal(body, &routes)
+		})
 		if err != nil {
-			return err
+			return routes, err
 		}
-		return json.Unmarshal(body, &routes)
-	})
+		gokeencache.SetRciShowIpRoute(routes)
+	}
 	var realRoutes []gokeenrestapimodels.RciShowIpRoute
 	for _, route := range routes {
 		if route.Interface == interfaceId || interfaceId == "" {
@@ -72,8 +71,7 @@ func (*keeneticIp) ShowIpRoute(interfaceId string) ([]gokeenrestapimodels.RciSho
 	//if err == nil {
 	//	gokeenlog.InfoSubStepf("Found %v routes", color.BlueString("%v", len(realRoutes)))
 	//}
-	gokeencache.SetRciShowIpRoute(realRoutes, interfaceId)
-	return realRoutes, err
+	return realRoutes, nil
 }
 
 // DeleteKnownHosts removes devices from the router's known hosts list by MAC address
@@ -90,6 +88,7 @@ func (*keeneticIp) DeleteKnownHosts(hostMacs []string) error {
 		parseSlice = append(parseSlice, parse)
 	}
 	return gokeenspinner.WrapWithSpinner(fmt.Sprintf("Deleting %v known hosts", color.BlueString("%v", len(parseSlice))), func() error {
+		parseSlice = Common.EnsureSaveConfigAtEnd(parseSlice)
 		_, err := Common.ExecutePostParse(parseSlice...)
 		return err
 	})
@@ -142,6 +141,7 @@ func (*keeneticIp) DeleteRoutes(routes []gokeenrestapimodels.RciIpRoute, interfa
 		parseSlice = append(parseSlice, parse)
 	}
 	return gokeenspinner.WrapWithSpinner(fmt.Sprintf("Deleting %v static routes with %v interface", color.BlueString("%v", len(parseSlice)), interfaceId), func() error {
+		parseSlice = Common.EnsureSaveConfigAtEnd(parseSlice)
 		_, err := Common.ExecutePostParse(parseSlice...)
 		return err
 	})
@@ -156,6 +156,7 @@ func (*keeneticIp) AddDnsRecords(domains []string) error {
 		parseSlice = append(parseSlice, parse)
 	}
 	return gokeenspinner.WrapWithSpinner("Adding dns records", func() error {
+		parseSlice = Common.EnsureSaveConfigAtEnd(parseSlice)
 		_, err := Common.ExecutePostParse(parseSlice...)
 		return err
 	})
@@ -170,6 +171,7 @@ func (*keeneticIp) DeleteDnsRecords(domains []string) error {
 		parseSlice = append(parseSlice, parse)
 	}
 	return gokeenspinner.WrapWithSpinner("Deleting dns records", func() error {
+		parseSlice = Common.EnsureSaveConfigAtEnd(parseSlice)
 		_, err := Common.ExecutePostParse(parseSlice...)
 		return err
 	})
@@ -217,10 +219,11 @@ func (*keeneticIp) AddRoutesFromBatFile(batFile string, interfaceId string) erro
 		gokeenlog.InfoSubStepf("No need to add new static routes from %v file", color.CyanString("%v", batFile))
 		return nil
 	}
-	gokeencache.SetRciShowIpRoute(nil, interfaceId)
+	gokeencache.SetRciShowIpRoute(nil)
 	var parseResponse []gokeenrestapimodels.ParseResponse
 	mErr = multierr.Append(mErr, gokeenspinner.WrapWithSpinner(fmt.Sprintf("Adding new %v static routes from %v file to %v interface", color.CyanString("%v", len(parseSlice)), color.CyanString(batFile), color.BlueString(interfaceId)), func() error {
 		var executeErr error
+		parseSlice = Common.EnsureSaveConfigAtEnd(parseSlice)
 		parseResponse, executeErr = Common.ExecutePostParse(parseSlice...)
 		return executeErr
 	}))
@@ -277,10 +280,11 @@ func (*keeneticIp) AddRoutesFromBatUrl(url string, interfaceId string) error {
 		gokeenlog.InfoSubStepf("No need to add new static routes from %v url", color.CyanString("%v", url))
 		return nil
 	}
-	gokeencache.SetRciShowIpRoute(nil, interfaceId)
+	gokeencache.SetRciShowIpRoute(nil)
 	var parseResponse []gokeenrestapimodels.ParseResponse
 	mErr = multierr.Append(mErr, gokeenspinner.WrapWithSpinner(fmt.Sprintf("Adding new %v static routes to %v interface", color.CyanString("%v", len(parseSlice)), color.BlueString(interfaceId)), func() error {
 		var executeErr error
+		parseSlice = Common.EnsureSaveConfigAtEnd(parseSlice)
 		parseResponse, executeErr = Common.ExecutePostParse(parseSlice...)
 		return executeErr
 	}))

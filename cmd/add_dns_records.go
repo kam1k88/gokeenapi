@@ -58,7 +58,7 @@ The command automatically saves the configuration after adding records.`,
 			return nil
 		}
 		err := gokeenspinner.WrapWithSpinner(fmt.Sprintf("Adding %v DNS records", color.CyanString("%v", len(parseC))), func() error {
-			parseC = append(parseC, gokeenrestapi.Common.SaveConfigParseRequest())
+			parseC = gokeenrestapi.Common.EnsureSaveConfigAtEnd(parseC)
 			result, err := gokeenrestapi.Common.ExecutePostParse(parseC...)
 			if err != nil {
 				return err

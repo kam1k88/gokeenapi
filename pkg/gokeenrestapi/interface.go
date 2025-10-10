@@ -145,10 +145,11 @@ func (*keeneticInterface) UpInterface(interfaceId string) error {
 	var parseSlice []gokeenrestapimodels.ParseRequest
 	parseSlice = append(parseSlice, gokeenrestapimodels.ParseRequest{
 		Parse: fmt.Sprintf("interface %v up", interfaceId),
-	}, Common.SaveConfigParseRequest())
+	})
 	var parseResponse []gokeenrestapimodels.ParseResponse
 	err := gokeenspinner.WrapWithSpinner(fmt.Sprintf("Bringing %v interface up", color.CyanString(interfaceId)), func() error {
 		var executeErr error
+		parseSlice = Common.EnsureSaveConfigAtEnd(parseSlice)
 		parseResponse, executeErr = Common.ExecutePostParse(parseSlice...)
 		return executeErr
 	})
@@ -165,10 +166,11 @@ func (*keeneticInterface) SetGlobalIpInInterface(interfaceId string, global bool
 	}
 	parseSlice = append(parseSlice, gokeenrestapimodels.ParseRequest{
 		Parse: fmt.Sprintf("interface %v %v", interfaceId, val),
-	}, Common.SaveConfigParseRequest())
+	})
 	var parseResponse []gokeenrestapimodels.ParseResponse
 	err := gokeenspinner.WrapWithSpinner(fmt.Sprintf("Changing global IP in %v interface to %v", color.CyanString(interfaceId), color.GreenString("%v", global)), func() error {
 		var executeErr error
+		parseSlice = Common.EnsureSaveConfigAtEnd(parseSlice)
 		parseResponse, executeErr = Common.ExecutePostParse(parseSlice...)
 		return executeErr
 	})

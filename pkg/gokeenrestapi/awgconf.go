@@ -146,8 +146,9 @@ func (*keeneticAwgconf) ConfigureOrUpdateInterface(confPath, interfaceId string)
 		H2string,
 		H3string,
 		H4string)
-	parseSlice = append(parseSlice, confParse, Common.SaveConfigParseRequest())
+	parseSlice = append(parseSlice, confParse)
 	return gokeenspinner.WrapWithSpinner(fmt.Sprintf("Configuring %v interface with ASC parameters", color.CyanString(interfaceId)), func() error {
+		parseSlice = Common.EnsureSaveConfigAtEnd(parseSlice)
 		_, err := Common.ExecutePostParse(parseSlice...)
 		return err
 	})

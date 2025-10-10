@@ -1,8 +1,6 @@
 package gokeencache
 
 import (
-	"fmt"
-
 	"github.com/noksa/gokeenapi/pkg/config"
 	"github.com/noksa/gokeenapi/pkg/gokeenrestapimodels"
 	"github.com/patrickmn/go-cache"
@@ -32,18 +30,12 @@ func GetRuntimeConfig() *config.Runtime {
 	return &config.Runtime{}
 }
 
-func SetRciShowIpRoute(routes []gokeenrestapimodels.RciShowIpRoute, interfaceId string) {
-	if interfaceId == "" {
-		interfaceId = "all"
-	}
-	c.Set(fmt.Sprintf("%v-%v", rciShowIpRoute, interfaceId), routes, cache.NoExpiration)
+func SetRciShowIpRoute(routes []gokeenrestapimodels.RciShowIpRoute) {
+	c.Set(rciShowIpRoute, routes, cache.NoExpiration)
 }
 
-func GetRciShowIpRoute(interfaceId string) []gokeenrestapimodels.RciShowIpRoute {
-	if interfaceId == "" {
-		interfaceId = "all"
-	}
-	v, ok := c.Get(fmt.Sprintf("%v-%v", rciShowIpRoute, interfaceId))
+func GetRciShowIpRoute() []gokeenrestapimodels.RciShowIpRoute {
+	v, ok := c.Get(rciShowIpRoute)
 	if !ok {
 		return nil
 	}
