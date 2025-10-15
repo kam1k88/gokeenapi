@@ -3,6 +3,7 @@ package cmd
 import (
 	"testing"
 
+	"github.com/noksa/gokeenapi/pkg/gokeenrestapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -39,7 +40,7 @@ func (s *ShowInterfacesTestSuite) TestShowInterfacesCmd_Execute() {
 
 func (s *ShowInterfacesTestSuite) TestShowInterfacesCmd_WithTypeFilter() {
 	cmd := newShowInterfacesCmd()
-	_ = cmd.Flags().Set("type", "Wireguard")
+	_ = cmd.Flags().Set("type", gokeenrestapi.InterfaceTypeWireguard)
 	output, err := s.CaptureOutput(cmd, []string{})
 
 	assert.NoError(s.T(), err)

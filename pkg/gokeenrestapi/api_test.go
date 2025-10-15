@@ -34,25 +34,25 @@ func (s *ApiTestSuite) TestGetInterfacesViaRciShowInterfaces() {
 
 	wg, exists := interfaces["Wireguard0"]
 	s.True(exists)
-	s.Equal("Wireguard", wg.Type)
+	s.Equal(InterfaceTypeWireguard, wg.Type)
 	s.Equal("10.0.0.1/24", wg.Address)
 }
 
 func (s *ApiTestSuite) TestGetInterfacesWithTypeFilter() {
-	interfaces, err := Interface.GetInterfacesViaRciShowInterfaces(false, "Wireguard")
+	interfaces, err := Interface.GetInterfacesViaRciShowInterfaces(false, InterfaceTypeWireguard)
 	s.NoError(err)
 	s.Len(interfaces, 1)
 
 	wg, exists := interfaces["Wireguard0"]
 	s.True(exists)
-	s.Equal("Wireguard", wg.Type)
+	s.Equal(InterfaceTypeWireguard, wg.Type)
 }
 
 func (s *ApiTestSuite) TestGetInterfaceViaRciShowInterfaces() {
 	iface, err := Interface.GetInterfaceViaRciShowInterfaces("Wireguard0")
 	s.NoError(err)
 	s.Equal("Wireguard0", iface.Id)
-	s.Equal("Wireguard", iface.Type)
+	s.Equal(InterfaceTypeWireguard, iface.Type)
 }
 
 func (s *ApiTestSuite) TestGetInterfacesViaRciShowScInterfaces() {
@@ -77,7 +77,7 @@ func (s *ApiTestSuite) TestExecutePostParse() {
 
 	for i, response := range responses {
 		s.NotEmpty(response.Parse.Status, "Response %d has no status", i)
-		s.Equal("ok", response.Parse.Status[0].Status, "Response %d status", i)
+		s.Equal(StatusOK, response.Parse.Status[0].Status, "Response %d status", i)
 	}
 }
 

@@ -174,7 +174,7 @@ func (*keeneticAwgconf) AddInterface(confFile string, name string) (gokeenrestap
 		}
 		err = json.Unmarshal(response, &createdInterface)
 		for _, status := range createdInterface.Status {
-			if status.Status == "error" {
+			if status.Status == StatusError {
 				err = multierr.Append(err, fmt.Errorf("%v - %v - %v - %v", status.Status, status.Code, status.Ident, status.Message))
 			}
 		}

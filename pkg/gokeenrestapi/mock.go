@@ -43,19 +43,19 @@ func SetupMockServer() *httptest.Server {
 		interfaces := map[string]gokeenrestapimodels.RciShowInterface{
 			"Wireguard0": {
 				Id:          "Wireguard0",
-				Type:        "Wireguard",
+				Type:        InterfaceTypeWireguard,
 				Description: "Test WireGuard interface",
 				Address:     "10.0.0.1/24",
-				Connected:   "yes",
-				Link:        "up",
-				State:       "up",
+				Connected:   StateConnected,
+				Link:        StateUp,
+				State:       StateUp,
 			},
 			"ISP": {
 				Id:        "ISP",
-				Type:      "PPPoE",
-				Connected: "yes",
-				Link:      "up",
-				State:     "up",
+				Type:      InterfaceTypePPPoE,
+				Connected: StateConnected,
+				Link:      StateUp,
+				State:     StateUp,
 			},
 		}
 		encodeJSON(w, interfaces)
@@ -67,12 +67,12 @@ func SetupMockServer() *httptest.Server {
 		if interfaceId == "Wireguard0" {
 			iface := gokeenrestapimodels.RciShowInterface{
 				Id:          "Wireguard0",
-				Type:        "Wireguard",
+				Type:        InterfaceTypeWireguard,
 				Description: "Test WireGuard interface",
 				Address:     "10.0.0.1/24",
-				Connected:   "yes",
-				Link:        "up",
-				State:       "up",
+				Connected:   StateConnected,
+				Link:        StateUp,
+				State:       StateUp,
 			}
 			encodeJSON(w, iface)
 			return
@@ -129,7 +129,7 @@ func SetupMockServer() *httptest.Server {
 			responses[i] = gokeenrestapimodels.ParseResponse{
 				Parse: gokeenrestapimodels.Parse{
 					Status: []gokeenrestapimodels.Status{
-						{Status: "ok", Code: "0", Message: fmt.Sprintf("Command executed: %s", req.Parse)},
+						{Status: StatusOK, Code: "0", Message: fmt.Sprintf("Command executed: %s", req.Parse)},
 					},
 				},
 			}

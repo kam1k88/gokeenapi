@@ -97,12 +97,12 @@ func (s *IpTestSuite) setupMockServerForIP() *httptest.Server {
 
 		responses := make([]gokeenrestapimodels.ParseResponse, len(requests))
 		for i, req := range requests {
-			status := "ok"
+			status := StatusOK
 			message := "Command executed successfully"
 
 			// Simulate error for invalid commands
 			if req.Parse == "invalid command" {
-				status = "error"
+				status = StatusError
 				message = "Invalid command"
 			}
 

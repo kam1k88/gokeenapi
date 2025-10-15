@@ -259,7 +259,7 @@ func (c *keeneticCommon) ExecutePostParse(parse ...gokeenrestapimodels.ParseRequ
 					parseResponse[i].Parse.DynamicData = string(response.Body())
 				}
 				for _, status := range myParse.Parse.Status {
-					if status.Status == "error" {
+					if status.Status == StatusError {
 						mErr = multierr.Append(mErr, fmt.Errorf("%s - %s - %s - %s", status.Status, status.Code, status.Ident, status.Message))
 					}
 				}

@@ -36,12 +36,12 @@ func (s *AwgTestSuite) setupMockServerForAWG() *httptest.Server {
 		interfaces := map[string]gokeenrestapimodels.RciShowInterface{
 			"Wireguard0": {
 				Id:          "Wireguard0",
-				Type:        "Wireguard",
+				Type:        InterfaceTypeWireguard,
 				Description: "Test WireGuard interface",
 				Address:     "10.0.0.1/24",
-				Connected:   "yes",
-				Link:        "up",
-				State:       "up",
+				Connected:   StateConnected,
+				Link:        StateUp,
+				State:       StateUp,
 			},
 		}
 		encodeJSON(w, interfaces)
@@ -92,7 +92,7 @@ func (s *AwgTestSuite) setupMockServerForAWG() *httptest.Server {
 				Parse: gokeenrestapimodels.Parse{
 					Status: []gokeenrestapimodels.Status{
 						{
-							Status:  "ok",
+							Status:  StatusOK,
 							Code:    "0",
 							Message: "AWG configuration applied successfully",
 						},

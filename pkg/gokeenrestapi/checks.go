@@ -47,7 +47,7 @@ func (*checks) CheckInterfaceExists(interfaceId string) error {
 // CheckAWGInterfaceExistsFromConfFile checks if a WireGuard connection from the config file already exists
 // Returns an error if a matching WireGuard interface is found with the same configuration
 func (*checks) CheckAWGInterfaceExistsFromConfFile(confPath string) error {
-	interfaces, err := Interface.GetInterfacesViaRciShowInterfaces(true, "Wireguard")
+	interfaces, err := Interface.GetInterfacesViaRciShowInterfaces(true, InterfaceTypeWireguard)
 	if err != nil {
 		return err
 	}

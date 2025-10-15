@@ -130,7 +130,7 @@ func (*keeneticInterface) WaitUntilInterfaceIsUp(interfaceId string) error {
 			if err != nil {
 				return err
 			}
-			if myInterface.Connected == "yes" && myInterface.Link == "up" && myInterface.State == "up" {
+			if myInterface.Connected == StateConnected && myInterface.Link == StateUp && myInterface.State == StateUp {
 				return nil
 			}
 			time.Sleep(time.Millisecond * 500)
