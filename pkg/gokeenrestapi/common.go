@@ -367,10 +367,15 @@ func (c *keeneticCommon) SaveConfigParseRequest() gokeenrestapimodels.ParseReque
 // EnsureSaveConfigAtEnd ensures SaveConfigParseRequest is at the end of parseSlice if not already present
 func (c *keeneticCommon) EnsureSaveConfigAtEnd(parseSlice []gokeenrestapimodels.ParseRequest) []gokeenrestapimodels.ParseRequest {
 	saveConfig := c.SaveConfigParseRequest()
-	if len(parseSlice) == 0 || parseSlice[len(parseSlice)-1].Parse != saveConfig.Parse {
-		parseSlice = append(parseSlice, saveConfig)
+
+	for i, req := range parseSlice {
+		if req.Parse == saveConfig.Parse {
+			parseSlice = append(parseSlice[:i], parseSlice[i+1:]...)
+			break
+		}
 	}
-	return parseSlice
+
+	return append(parseSlice, saveConfig)
 }
 
 func (c *keeneticCommon) SaveConfig() error {
