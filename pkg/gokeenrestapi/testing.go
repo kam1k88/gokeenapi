@@ -145,6 +145,15 @@ func SetupMockServer() *httptest.Server {
 		encodeJSON(w, runningConfig)
 	})
 
+	// System mode endpoint
+	mux.HandleFunc("/rci/show/system/mode", func(w http.ResponseWriter, r *http.Request) {
+		systemMode := gokeenrestapimodels.SystemMode{
+			Active:   "router",
+			Selected: "router",
+		}
+		encodeJSON(w, systemMode)
+	})
+
 	// IP route endpoints
 	mux.HandleFunc("/rci/ip/route", func(w http.ResponseWriter, r *http.Request) {
 		routes := []gokeenrestapimodels.RciIpRoute{

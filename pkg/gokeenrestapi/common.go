@@ -204,6 +204,10 @@ func (c *keeneticCommon) Auth() error {
 	if err != nil {
 		return err
 	}
+	_, _, err = c.CheckRouterMode()
+	if err != nil {
+		return err
+	}
 	version, err := c.Version()
 	if err != nil {
 		return err
@@ -382,4 +386,21 @@ func (c *keeneticCommon) SaveConfig() error {
 	parseRequest := c.SaveConfigParseRequest()
 	_, err := c.ExecutePostParse(parseRequest)
 	return err
+}
+
+// CheckRouterMode verifies that the router is in router mode (not extender mode)
+func (c *keeneticCommon) CheckRouterMode() (string, string, error) {
+	b, err := c.ExecuteGetSubPath("/rci/show/system/mode")
+	if err != nil {
+		return "", "", err
+	}
+	var systemMode gokeenrestapimodels.SystemMode
+	err = json.Unmarshal(b, &systemMode)
+	if err != nil {
+		return "", "", err
+	}
+	if systemMode.Active != "router" || systemMode.Selected != "router" {
+		return systemMode.Active, systemMode.Selected, fmt.Errorf("router is not in router mode (active: %s, selected: %s). Only router mode is supported", systemMode.Active, systemMode.Selected)
+	}
+	return systemMode.Active, systemMode.Selected, nil
 }
