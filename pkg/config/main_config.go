@@ -4,7 +4,7 @@ import (
 	"errors"
 	"os"
 
-	"github.com/noksa/gokeenapi/pkg/gokeenrestapimodels"
+	"github.com/kam1k88/gokeenapi/pkg/backends/keenetic/models"
 	"gopkg.in/yaml.v3"
 )
 
@@ -15,7 +15,7 @@ var (
 // Runtime holds runtime configuration that is not persisted to YAML
 type Runtime struct {
 	RouterInfo struct {
-		Version gokeenrestapimodels.Version `yaml:"-"`
+		Version models.Version `yaml:"-"`
 	} `yaml:"-"`
 }
 

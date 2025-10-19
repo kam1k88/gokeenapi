@@ -3,8 +3,8 @@ package gokeenlog
 import (
 	"fmt"
 
-	"github.com/noksa/gokeenapi/pkg/config"
-	"github.com/noksa/gokeenapi/pkg/gokeenrestapimodels"
+	"github.com/kam1k88/gokeenapi/pkg/backends/keenetic/models"
+	"github.com/kam1k88/gokeenapi/pkg/config"
 )
 
 func Info(msg string) {
@@ -25,7 +25,7 @@ func InfoSubStep(msg string) {
 	fmt.Printf("      ▪ %v\n", msg)
 }
 
-func PrintParseResponse(parseResponse []gokeenrestapimodels.ParseResponse) {
+func PrintParseResponse(parseResponse []models.ParseResponse) {
 	if !config.Cfg.Logs.Debug {
 		return
 	}

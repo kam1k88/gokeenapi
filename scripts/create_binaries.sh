@@ -29,7 +29,7 @@ for A in $ARCH; do
     if [[ "$O" == "windows" ]]; then
       output="${output}.exe"
     fi
-    CGO_ENABLED=0 GOARCH=$A GOOS=$O go build -ldflags "-X \"github.com/noksa/gokeenapi/internal/gokeenversion.version=${VERSION}\" -X \"github.com/noksa/gokeenapi/internal/gokeenversion.buildDate=${BUILDDATE}\"" -o "${output}" ../main.go
+    CGO_ENABLED=0 GOARCH=$A GOOS=$O go build -ldflags "-X \"github.com/kam1k88/gokeenapi/internal/gokeenversion.version=${VERSION}\" -X \"github.com/kam1k88/gokeenapi/internal/gokeenversion.buildDate=${BUILDDATE}\"" -o "${output}" ../cmd/goarapi
     echo "Built for ${O}-${A}"
 #    gtar -czvf "gokeenapi_${VERSION}_${O}_${A}.tar.gz" "${output}" >/dev/null
 #    rm -rf "${output}"

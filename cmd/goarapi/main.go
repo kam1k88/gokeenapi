@@ -16,16 +16,19 @@ func main() {
 	ctx := context.Background()
 	cmdCtx, cancel := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer cancel()
-	var err error
+
 	errChan := make(chan error)
 	go func() {
 		errChan <- rootCmd.ExecuteContext(cmdCtx)
 	}()
+
+	var err error
 	select {
 	case err = <-errChan:
 	case <-cmdCtx.Done():
 		err = cmdCtx.Err()
 	}
+
 	cli.RestoreCursor()
 	if err != nil {
 		gokeenlog.Info(color.HiRedString("Error occured!"))

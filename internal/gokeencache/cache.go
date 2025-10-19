@@ -1,8 +1,8 @@
 package gokeencache
 
 import (
-	"github.com/noksa/gokeenapi/pkg/config"
-	"github.com/noksa/gokeenapi/pkg/gokeenrestapimodels"
+	"github.com/kam1k88/gokeenapi/pkg/backends/keenetic/models"
+	"github.com/kam1k88/gokeenapi/pkg/config"
 	"github.com/patrickmn/go-cache"
 )
 
@@ -30,25 +30,25 @@ func GetRuntimeConfig() *config.Runtime {
 	return &config.Runtime{}
 }
 
-func SetRciShowIpRoute(routes []gokeenrestapimodels.RciShowIpRoute) {
+func SetRciShowIpRoute(routes []models.RciShowIpRoute) {
 	c.Set(rciShowIpRoute, routes, cache.NoExpiration)
 }
 
-func GetRciShowIpRoute() []gokeenrestapimodels.RciShowIpRoute {
+func GetRciShowIpRoute() []models.RciShowIpRoute {
 	v, ok := c.Get(rciShowIpRoute)
 	if !ok {
 		return nil
 	}
-	return v.([]gokeenrestapimodels.RciShowIpRoute)
+	return v.([]models.RciShowIpRoute)
 }
 
-func SetRciShowInterfaces(m map[string]gokeenrestapimodels.RciShowInterface) {
+func SetRciShowInterfaces(m map[string]models.RciShowInterface) {
 	c.Set(rciShowInterfaces, m, cache.NoExpiration)
 }
-func GetRciShowInterfaces() map[string]gokeenrestapimodels.RciShowInterface {
+func GetRciShowInterfaces() map[string]models.RciShowInterface {
 	v, ok := c.Get(rciShowInterfaces)
 	if !ok {
 		return nil
 	}
-	return v.(map[string]gokeenrestapimodels.RciShowInterface)
+	return v.(map[string]models.RciShowInterface)
 }

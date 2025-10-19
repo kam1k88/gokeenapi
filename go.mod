@@ -1,6 +1,10 @@
-module github.com/noksa/gokeenapi
+module github.com/kam1k88/gokeenapi
 
-go 1.24.0
+go 1.23
+
+toolchain go1.24.3
+
+replace github.com/Noksa/gokeenapi/pkg => ./pkg
 
 require (
 	github.com/briandowns/spinner v1.23.2
