@@ -64,6 +64,14 @@ The name will be used as the interface ID for other commands.`)
 		if err != nil {
 			return err
 		}
+		// we must check that wireguard component is installed on the router - otherwise it will fail
+		installed, err := gokeenrestapi.Checks.CheckComponentInstalled("wireguard")
+		if err != nil {
+			return err
+		}
+		if installed == "" {
+			return fmt.Errorf("wireguard component is not installed. Please install 'WireGuard VPN' component in your Keenetic router first")
+		}
 		err = gokeenrestapi.Checks.CheckAWGInterfaceExistsFromConfFile(confPath)
 		if err != nil {
 			return err

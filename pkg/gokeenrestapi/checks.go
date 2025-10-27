@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
+	"github.com/noksa/gokeenapi/pkg/gokeenrestapimodels"
 	"gopkg.in/ini.v1"
 )
 
@@ -42,6 +43,23 @@ func (*checks) CheckInterfaceExists(interfaceId string) error {
 		return fmt.Errorf("keenetic router doesn't have interface with id '%v'. Verify that you specified correct ID", interfaceId)
 	}
 	return nil
+}
+
+// CheckComponentInstalled checks if a specific component is installed on the router
+// Returns the installation status string if found, empty string if not installed or not found
+func (*checks) CheckComponentInstalled(componentName string) (installed string, err error) {
+	var components gokeenrestapimodels.RciComponentsList
+	components, err = Components.GetAllComponents()
+	if err != nil {
+		return
+	}
+	for k, v := range components.Component {
+		if strings.EqualFold(k, componentName) {
+			installed = v.Installed
+			return
+		}
+	}
+	return
 }
 
 // CheckAWGInterfaceExistsFromConfFile checks if a WireGuard connection from the config file already exists
