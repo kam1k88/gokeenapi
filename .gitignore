@@ -9,3 +9,4 @@ scripts/upload_routes*.sh
 batfiles/file*.bat
 coverage.html
 coverage.out
+.DS_Store
