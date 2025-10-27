@@ -173,6 +173,13 @@ func (*keeneticAwgconf) AddInterface(confFile string, name string) (gokeenrestap
 			return err
 		}
 		err = json.Unmarshal(response, &createdInterface)
+		if err != nil {
+			if response != nil {
+				return fmt.Errorf("parsing json error: %v", string(response))
+			} else {
+				return err
+			}
+		}
 		for _, status := range createdInterface.Status {
 			if status.Status == StatusError {
 				err = multierr.Append(err, fmt.Errorf("%v - %v - %v - %v", status.Status, status.Code, status.Ident, status.Message))
